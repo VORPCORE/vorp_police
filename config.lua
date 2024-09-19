@@ -1,6 +1,8 @@
 Config = {}
 
-Config.Align = "top-left" -- menu alignment
+Config.Align = "top-left"        -- menu alignment
+
+Config.PoliceMenu = 'policemenu' -- to go on duty and teleport
 
 -- add any job names here
 Config.PoliceJobs = {

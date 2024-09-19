@@ -36,6 +36,19 @@ local function isPlayerNear(source, target)
     local distance <const> = #(sourcePos - targetPos)
     return distance <= 5
 end
+
+local function openPoliceMenu(source)
+    local user <const> = Core.getUser(source)
+    if not user then return end
+
+    if not hasJob(user) then
+        return Core.NotifyObjective(source, "you are not a police officer ", 5000)
+    end
+
+    TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
+end
+
+
 --* OPEN STORAGE
 RegisterNetEvent("vorp_police:Server:OpenStorage", function(key)
     local _source <const> = source
@@ -92,19 +105,15 @@ AddEventHandler("onResourceStart", function(resource)
         registerStorage(prefix, value.Name, value.Limit)
     end
 end)
+-- vorpCharSelect
+AddEventHandler("vorp:SelectedCharacter", function(source, char)
+    if not Config.PoliceJobs[char.job] then return end
+    -- add chat suggestion
+    TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenu, "Open Police Menu", {})
+    RegisterCommand(Config.PoliceMenu, openPoliceMenu, false)
+end)
 
---* OPEN POLICE MENU
-RegisterCommand('policemenu', function(source, args, rawCommand)
-    local user <const> = Core.getUser(source)
 
-    if not user then return end
-
-    if not hasJob(user) then
-        return Core.NotifyObjective(source, "you are not a police officer ", 5000)
-    end
-
-    TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
-end, false)
 
 --* HIRE PLAYER
 RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
@@ -139,6 +148,9 @@ RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
 
     Core.NotifyObjective(target, "you have been hired as " .. label, 5000)
     Core.NotifyObjective(_source, "you have hired the player", 5000)
+
+    TriggerClientEvent("chat:addSuggestion", _source, "/" .. Config.PoliceMenu, "Open Police Menu", {})
+    RegisterCommand(Config.PoliceMenu, openPoliceMenu, false)
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
 end)
