@@ -39,15 +39,16 @@ end
 
 
 local group <const> = GetRandomIntInRange(0, 0xFFFFFF)
+local prompt        = 0
 local function registerPrompts()
-    local prompt <const> = UiPromptRegisterBegin()
+    if prompt ~= 0 then UiPromptDelete(prompt) end
+    prompt = UiPromptRegisterBegin()
     UiPromptSetControlAction(prompt, Config.Keys.B)
     local label = VarString(10, "LITERAL_STRING", "Press")
     UiPromptSetText(prompt, label)
     UiPromptSetGroup(prompt, group, 0)
     UiPromptSetStandardMode(prompt, true)
     UiPromptRegisterEnd(prompt)
-    return prompt
 end
 
 local function applyBadge(result)
@@ -93,7 +94,7 @@ end
 
 local isHandleRunning = false
 local function Handle()
-    local prompt <const> = registerPrompts()
+    registerPrompts()
     createBlips()
     isHandleRunning = true
     while true do
