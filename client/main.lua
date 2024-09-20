@@ -95,7 +95,6 @@ end
 local isHandleRunning = false
 local function Handle()
     registerPrompts()
-    createBlips()
     isHandleRunning = true
     while true do
         local sleep = 1000
@@ -181,9 +180,6 @@ end
 
 RegisterNetEvent("vorp_police:Client:JobUpdate", function()
     local hasJob = getPlayerJob()
-    for key, value in pairs(Config.Stations) do
-        RemoveBlip(value.BlipHandle)
-    end
 
     if not hasJob then
         RegisterCommand("drag", function()
@@ -200,6 +196,7 @@ end)
 
 CreateThread(function()
     repeat Wait(5000) until LocalPlayer.state.IsInSession
+    createBlips()
     local hasJob <const> = getPlayerJob()
     if not hasJob then return end
     if not isHandleRunning then

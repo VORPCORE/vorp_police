@@ -32,9 +32,10 @@ Config.SheriffJobs = {
 
 
 -- items
-Config.CuffItem = "handcuffs" -- can only uncuff if theres a key for the handcuffs
+Config.CuffItem = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
 
-Config.KeysItem = "handcuffkey" -- when you uncuff a player you will get items handcuffs if it doesnt have one already in your inventory
+Config.KeysItem =
+"handcuffkey"                   -- when you uncuff a player you will get items handcuffs if it doesnt have one already in your inventory
 
 
 -- if true storage for every police station will be shared if false they will be unique
@@ -119,7 +120,6 @@ Config.Teleports = {
         Coords = vector3(2909.674, 1309.006, 43.938),
     },
 }
-
 
 --blips for stations
 Config.Blips = {
