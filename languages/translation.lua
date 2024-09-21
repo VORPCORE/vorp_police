@@ -3,7 +3,6 @@ Translation = {}
 Translation.Langs = {
   English = {
     Menu = {
-      Drag = "Drag",
       Hire = "Hire",
       Fire = "Fire",
       HirePlayer = "Hire Player",
