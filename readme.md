@@ -50,7 +50,7 @@ Ensure you have these resources installed and correctly set up for the `vorp_pol
 
 ## **Usage**
 
-1. **Storage**: Officers can access shared or private storage depending on configuration. Storage can be restricted by job or rank.
+1. **Storage**: Officers can access shared or private storage depending on configuration.
 2. **On-Duty**: Use commands or menu options to go on or off duty.
 3. **Teleport**: Teleports can be configured for quick travel between key locations.
 4. **Boss Menu**: Manage the police force by hiring and firing players directly through the boss menu.
