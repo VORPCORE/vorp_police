@@ -16,7 +16,7 @@ local function registerStorage(prefix, name, limit)
             UsePermissions = false,
             UseBlackList = false,
             whitelistWeapons = false,
-            webhook = ""
+            webhook = ""  --Add webhook Url here
         
         }
         Inv:registerInventory(data)

@@ -42,6 +42,7 @@ Config.KeysItem =
 Config.ShareStorage = true
 
 -- storage locations
+--check the server.lua for webhook url location line 19 in server.lua
 Config.Storage = {
 
     Valentine = {
