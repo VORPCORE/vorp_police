@@ -49,9 +49,7 @@ Translation.Langs = {
       OnlyPoliceopenmenu = "You Are Not Allowed ToOpen This Menu",
       Playernearby = "There Is A Player Nearby Cant Open Inventory"
     },
-    WebHook = {
-      Url = "", --Add webhook Url here
-    },
+
   },
   --add your language here Open PR to Murge other languages to the Main repo
   --[[

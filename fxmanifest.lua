@@ -7,7 +7,7 @@ description 'A police job for vorp core framework'
 repository 'https://github.com/VORPCORE/vorp_police'
 lua54 'yes'
 
-shared_script {
+shared_scripts {
     'config.lua',
     'languages/translation.lua'
 }
