@@ -1,10 +1,9 @@
-local Core       = exports.vorp_core:GetCore()
-local MenuData   = exports.vorp_menu:GetMenuData()
-
-local draggedBy  = -1
-local drag       = false
-local wasDragged = false
-
+local Core          = exports.vorp_core:GetCore()
+local MenuData      = exports.vorp_menu:GetMenuData()
+local T             = Translation.Langs[Config.Lang]
+local draggedBy     = -1
+local drag          = false
+local wasDragged    = false
 
 -- on resource stop
 AddEventHandler("onResourceStop", function(resource)
@@ -19,13 +18,12 @@ AddEventHandler("onResourceStop", function(resource)
     end
 end)
 
-
 local function getClosestPlayer()
     local players <const> = GetActivePlayers()
     local coords <const> = GetEntityCoords(PlayerPedId())
 
     for _, value in ipairs(players) do
-        if PlayerId() ~= value then -- dont include your self
+        if PlayerId() ~= value then
             local targetPed <const> = GetPlayerPed(value)
             local targetCoords <const> = GetEntityCoords(targetPed)
             local distance <const> = #(coords - targetCoords)
@@ -37,14 +35,13 @@ local function getClosestPlayer()
     return false, nil
 end
 
-
 local group <const> = GetRandomIntInRange(0, 0xFFFFFF)
 local prompt        = 0
 local function registerPrompts()
     if prompt ~= 0 then UiPromptDelete(prompt) end
     prompt = UiPromptRegisterBegin()
     UiPromptSetControlAction(prompt, Config.Keys.B)
-    local label = VarString(10, "LITERAL_STRING", "Press")
+    local label = VarString(10, "LITERAL_STRING", T.Menu.Press)
     UiPromptSetText(prompt, label)
     UiPromptSetGroup(prompt, group, 0)
     UiPromptSetStandardMode(prompt, true)
@@ -53,7 +50,6 @@ end
 
 local function applyBadge(result)
     local playerPed <const> = PlayerPedId()
-
     if result then
         RemoveTagFromMetaPed(playerPed, 0x3F7F3587, 0)
         UpdatePedVariation(playerPed, false, true, true, true, false)
@@ -76,7 +72,7 @@ end
 
 local function isOnDuty()
     if not LocalPlayer.state.isPoliceDuty then
-        Core.NotifyObjective("You are not on duty", 5000)
+        Core.NotifyObjective(T.Duty.YouAreNotOnDuty, 5000)
         return false
     end
     return true
@@ -103,7 +99,6 @@ local function Handle()
 
             if value.Storage[key] then
                 local distanceStorage <const> = #(coords - value.Storage[key].Coords)
-
                 if distanceStorage < 2.0 then
                     sleep = 0
                     if distanceStorage < 1.5 then
@@ -116,7 +111,7 @@ local function Handle()
                                 if not isAnyPlayerClose then
                                     TriggerServerEvent("vorp_police:Server:OpenStorage", key)
                                 else
-                                    Core.NotifyObjective("There is a player nearby can't open inventory", 5000)
+                                    Core.NotifyObjective(T.Error.Playernearby, 5000)
                                 end
                             end
                         end
@@ -126,7 +121,6 @@ local function Handle()
 
             if value.Teleports[key] then
                 local distanceTeleport <const> = #(coords - value.Teleports[key].Coords)
-
                 if distanceTeleport < 2.0 then
                     sleep = 0
                     if distanceTeleport < 1.5 then
@@ -154,7 +148,7 @@ local function Handle()
                         if Config.SheriffJobs[job] then
                             OpenSheriffMenu()
                         else
-                            Core.NotifyObjective("You are not allowed to open this menu", 5000)
+                            Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
                         end
                     end
                 end
@@ -168,7 +162,8 @@ end
 
 local function dragHandle()
     if not isOnDuty() then
-        return Core.NotifyObjective("You are not on duty", 5000)
+        Core.NotifyObjective(T.Duty.YouAreNotOnDuty, 5000)
+        return
     end
 
     local isclose <const>, _, player <const> = getClosestPlayer()
@@ -182,8 +177,8 @@ RegisterNetEvent("vorp_police:Client:JobUpdate", function()
     local hasJob = getPlayerJob()
 
     if not hasJob then
-        RegisterCommand("drag", function()
-            Core.NotifyObjective("You are not a police officer", 5000)
+        RegisterCommand(Config.Dragcommand, function()
+            Core.NotifyObjective(T.Jobs.YouAreNotAPoliceOfficer, 5000)
         end, false)
         isHandleRunning = false
         return
@@ -191,7 +186,7 @@ RegisterNetEvent("vorp_police:Client:JobUpdate", function()
 
     if isHandleRunning then return end
     CreateThread(Handle)
-    RegisterCommand("drag", dragHandle, false)
+    RegisterCommand(Config.Dragcommand, dragHandle, false)
 end)
 
 CreateThread(function()
@@ -201,29 +196,28 @@ CreateThread(function()
     if not hasJob then return end
     if not isHandleRunning then
         CreateThread(Handle)
-        RegisterCommand("drag", dragHandle, false)
+        RegisterCommand(Config.Dragcommand, dragHandle, false)
     end
 end)
-
 
 function OpenSheriffMenu()
     MenuData.CloseAll()
     local elements <const> = {
         {
-            label = "hire player",
+            label = T.Menu.HirePlayer,
             value = "hire",
-            desc = "Hire a new player" .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Menu.HirePlayer .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
         },
         {
-            label = "fire player",
+            label = T.Menu.FirePlayer,
             value = "fire",
-            desc = "Fire a player" .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Menu.FirePlayer .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
         }
     }
 
     MenuData.Open("default", GetCurrentResourceName(), "OpenSheriffMenu", {
-        title = "Sheriff Menu",
-        subtext = "subMenu",
+        title = T.Menu.SheriffMenu,
+        subtext = T.Menu.HireFireMenu,
         align = Config.Align,
         elements = elements,
 
@@ -234,14 +228,14 @@ function OpenSheriffMenu()
             local MyInput <const> = {
                 type = "enableinput",
                 inputType = "input",
-                button = "Confirm",
-                placeholder = "Player ID",
+                button = T.Player.Confirm,
+                placeholder = T.Player.PlayerId,
                 style = "block",
                 attributes = {
-                    inputHeader = "Fire Player",
+                    inputHeader = T.Menu.FirePlayer,
                     type = "number",
                     pattern = "[0-9]",
-                    title = "Only numbers are allowed",
+                    title = T.Player.OnlyNumbersAreAllowed,
                     style = "border-radius: 10px; background-color: ; border:none;",
                 }
             }
@@ -261,12 +255,12 @@ function OpenHireMenu()
     MenuData.CloseAll()
     local elements = {}
     for key, _ in pairs(Config.PoliceJobs) do
-        table.insert(elements, { label = "Job: " .. key, value = key, desc = "Job to give " .. key })
+        table.insert(elements, { label = T.Jobs.Job .. ": " .. key, value = key, desc = T.Jobs.Job .. key })
     end
 
     MenuData.Open("default", GetCurrentResourceName(), "OpenHireFireMenu", {
-        title = "Hire Menu",
-        subtext = "subMenu",
+        title = T.Menu.HireFireMenu,
+        subtext = T.Menu.SubMenu,
         elements = elements,
         align = Config.Align,
         lastmenu = "OpenSheriffMenu"
@@ -280,14 +274,14 @@ function OpenHireMenu()
         local MyInput = {
             type = "enableinput",
             inputType = "input",
-            button = "Confirm",
-            placeholder = "Player ID",
+            button = T.Player.Confirm,
+            placeholder = T.Player.PlayerId,
             style = "block",
             attributes = {
-                inputHeader = "Hire Player",
+                inputHeader = T.Menu.HirePlayer,
                 type = "number",
                 pattern = "[0-9]",
-                title = "Only numbers are allowed",
+                title = T.Player.OnlyNumbersAreAllowed,
                 style = "border-radius: 10px; background-color: ; border:none;",
             }
         }
@@ -311,21 +305,21 @@ function OpenTeleportMenu(location)
                 table.insert(elements, {
                     label = key,
                     value = key,
-                    desc = "Teleport to " .. value.Name
+                    desc = T.Teleport.TeleportTo .. ": " .. value.Name
                 })
             end
         else
             table.insert(elements, {
                 label = key,
                 value = key,
-                desc = "Teleport to " .. value.Name
+                desc = T.Teleport.TeleportTo .. ": " .. value.Name
             })
         end
     end
 
     MenuData.Open("default", GetCurrentResourceName(), "OpenTeleportMenu", {
-        title = "Teleport Menu",
-        subtext = "subMenu",
+        title = T.Teleport.TeleportMenu,
+        subtext = T.Menu.SubMenu,
         align = Config.Align,
         elements = elements,
 
@@ -347,8 +341,8 @@ end
 local function OpenPoliceMenu()
     MenuData.CloseAll()
     local isONduty <const> = LocalPlayer.state.isPoliceDuty
-    local label <const> = isONduty and "Off Duty" or "On Duty"
-    local desc <const> = isONduty and "Go off duty" or "Go on duty"
+    local label <const> = isONduty and T.Duty.OffDuty or T.Duty.OnDuty
+    local desc <const> = isONduty and T.Duty.GoOffDuty or T.Duty.GoOnDuty
     local elements <const> = {
         {
             label = label,
@@ -359,15 +353,15 @@ local function OpenPoliceMenu()
 
     if Config.UseTeleportsMenu then
         table.insert(elements, {
-            label = "teleports",
+            label = T.Teleport.TeleportTo ,
             value = "teleports",
-            desc = "Teleport to different locations" .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Teleport.TeleportToDifferentLocations .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
         })
     end
 
     MenuData.Open("default", GetCurrentResourceName(), "OpenPoliceMenu", {
-        title = "Police Menu",
-        subtext = "subMenu",
+        title = T.Menu.SheriffMenu,
+        subtext = T.Menu.SubMenu,
         align = Config.Align,
         elements = elements,
 
@@ -377,10 +371,10 @@ local function OpenPoliceMenu()
         elseif data.current.value == "duty" then
             local result = Core.Callback.TriggerAwait("vorp_police:server:checkDuty")
             if result then
-                Core.NotifyObjective("You are now on duty", 5000)
+                Core.NotifyObjective(T.Duty.YouAreNowOnDuty, 5000)
                 applyBadge(true)
             else
-                Core.NotifyObjective("You are now off duty", 5000)
+                Core.NotifyObjective(T.Duty.YouAreNotOnDuty, 5000)
                 applyBadge(false)
             end
             menu.close()
@@ -393,7 +387,6 @@ end
 RegisterNetEvent("vorp_police:Client:OpenPoliceMenu", function()
     OpenPoliceMenu()
 end)
-
 
 RegisterNetEvent('vorp_police:Client:PlayerCuff', function(action)
     local playerPed <const> = PlayerPedId()
@@ -410,11 +403,10 @@ RegisterNetEvent('vorp_police:Client:PlayerCuff', function(action)
     end
 end)
 
-
 Core.Callback.Register("vorp_police:server:isPlayerCuffed", function(CB)
     local isclose <const>, playerped <const>, player <const> = getClosestPlayer()
     if not isclose then
-        Core.NotifyObjective("No players nearby", 5000)
+        Core.NotifyObjective(T.Player.NoPlayerFound, 5000)
         return CB({ false, false })
     end
 
@@ -429,14 +421,12 @@ RegisterNetEvent("vorp_police:Client:dragPlayer", function(_source)
     drag = not drag
 end)
 
-
 AddEventHandler("vorp_core:Client:OnPlayerDeath", function(killerserverid, causeofdeath)
     if drag then
         drag = false
         wasDragged = true
     end
 end)
-
 
 CreateThread(function()
     repeat Wait(5000) until LocalPlayer.state.IsInSession

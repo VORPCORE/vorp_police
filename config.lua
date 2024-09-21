@@ -1,9 +1,9 @@
 Config = {}
 
-Config.Align = "top-left"        -- menu alignment
-
-Config.PoliceMenu = 'policemenu' -- to go on duty and teleport
-
+Config.Align                = "top-left"   -- menu alignment
+Config.Lang                 = "English"    -- language you want to use please make sure its in the translation.lua
+Config.Dragcommand          = "Drag"       --Comand to drag players
+Config.PoliceMenuCommand    = 'policemenu' -- Command to go on duty and teleport
 -- add any job names here
 Config.PoliceJobs = {
     police = true,
