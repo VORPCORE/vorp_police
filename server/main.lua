@@ -1,5 +1,6 @@
-local Core = exports.vorp_core:GetCore()
-local Inv = exports.vorp_inventory
+local Core      = exports.vorp_core:GetCore()
+local Inv       = exports.vorp_inventory
+local T         = Translation.Langs[Config.Lang]
 
 local function registerStorage(prefix, name, limit)
     local isInvRegstered <const> = Inv:isCustomInventoryRegistered(prefix)
@@ -15,7 +16,8 @@ local function registerStorage(prefix, name, limit)
             UsePermissions = false,
             UseBlackList = false,
             whitelistWeapons = false,
-            webhook = "" -- ADD YOUR WEBHOOK URL HERE
+            webhook = ""  --Add webhook Url here
+        
         }
         Inv:registerInventory(data)
     end
@@ -42,7 +44,7 @@ local function openPoliceMenu(source)
     if not user then return end
 
     if not hasJob(user) then
-        return Core.NotifyObjective(source, "you are not a police officer ", 5000)
+        return Core.NotifyObjective(source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
     TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
@@ -56,11 +58,11 @@ RegisterNetEvent("vorp_police:Server:OpenStorage", function(key)
     if not User then return end
 
     if not hasJob(User) then
-        return Core.NotifyObjective(_source, "you are not a police officer ", 5000)
+        return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
     if not isOnDuty(_source) then
-        return Core.NotifyObjective(_source, "you are not on duty ", 5000)
+        return Core.NotifyObjective(_source, T.Duty.YouAreNotOnDuty, 5000)
     end
 
     local prefix = "vorp_police_storage_" .. key
@@ -105,52 +107,50 @@ AddEventHandler("onResourceStart", function(resource)
         registerStorage(prefix, value.Name, value.Limit)
     end
 end)
+
 -- vorpCharSelect
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if not Config.PoliceJobs[char.job] then return end
     -- add chat suggestion
-    TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenu, "Open Police Menu", {})
-    RegisterCommand(Config.PoliceMenu, openPoliceMenu, false)
+    TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
+    RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
 end)
-
-
 
 --* HIRE PLAYER
 RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     local _source <const> = source
-
     local User <const> = Core.getUser(_source)
     if not User then return end
 
     if not hasJob(User) then
-        return Core.NotifyObjective(_source, "you are not a police officer", 5000)
+        return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
     local label <const> = Config.JobLabels[job]
-    if not label then return print("job doesnt have label in config please add") end
+    if not label then return print(T.Jobs.Nojoblabel) end
 
     local target <const> = id
     local targetUser <const> = Core.getUser(target)
-    if not targetUser then return Core.NotifyObjective(_source, "player not found can only hire players in session", 5000) end
+    if not targetUser then return Core.NotifyObjective(_source, T.Player.NoPlayerFound, 5000) end
 
     local targetCharacter <const> = targetUser.getUsedCharacter
     local targetJob <const> = targetCharacter.job
     if job == targetJob then
-        return Core.NotifyObjective(_source, "player is already a " .. label, 5000)
+        return Core.NotifyObjective(_source, T.Player.PlayeAlreadyHired .. label, 5000)
     end
 
     if not isPlayerNear(_source, target) then
-        return Core.NotifyObjective(_source, "player is not near you to be hired", 5000)
+        return Core.NotifyObjective(_source, T.Player.NotNear, 5000)
     end
 
     targetCharacter.setJob(job, true)
     targetCharacter.setJobLabel(label, true)
 
-    Core.NotifyObjective(target, "you have been hired as " .. label, 5000)
-    Core.NotifyObjective(_source, "you have hired the player", 5000)
+    Core.NotifyObjective(target, T.Player.HireedPlayer .. label, 5000)
+    Core.NotifyObjective(_source, T.Menu.HirePlayer, 5000)
 
-    TriggerClientEvent("chat:addSuggestion", _source, "/" .. Config.PoliceMenu, "Open Police Menu", {})
-    RegisterCommand(Config.PoliceMenu, openPoliceMenu, false)
+    TriggerClientEvent("chat:addSuggestion", _source, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
+    RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
 end)
@@ -158,28 +158,28 @@ end)
 --* FIRE PLAYER
 RegisterNetEvent("vorp_police:server:firePlayer", function(id)
     local _source <const> = source
-    local user <const>    = Core.getUser(_source)
+    local user <const> = Core.getUser(_source)
     if not user then return end
 
     if not hasJob(user) then
-        return Core.NotifyObjective(_source, "you are not a police officer", 5000)
+        return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
     local target <const> = id
     local targetUser <const> = Core.getUser(target)
-    if not targetUser then return Core.NotifyObjective(_source, "player not found can only hire players in session", 5000) end
+    if not targetUser then return Core.NotifyObjective(_source, T.Player.NoPlayerFound, 5000) end
 
     local targetCharacter <const> = targetUser.getUsedCharacter
-    local targetJob <const>       = targetCharacter.job
+    local targetJob <const> = targetCharacter.job
     if not Config.PoliceJobs[targetJob] then
-        return Core.NotifyObjective(_source, "player is not a police officer you cant fire them", 5000)
+        return Core.NotifyObjective(_source, T.Player.CantFirenotHired, 5000)
     end
 
     targetCharacter.setJob("unemployed", true)
     targetCharacter.setJobLabel("Unemployed", true)
 
-    Core.NotifyObjective(target, "you have been fired", 5000)
-    Core.NotifyObjective(_source, "you have fired the player", 5000)
+    Core.NotifyObjective(target, T.Player.BeenFireed, 5000)
+    Core.NotifyObjective(_source, T.Player.FiredPlayer, 5000)
 
     if isOnDuty(target) then
         Player(target).state:set('isPoliceDuty', nil, true)
@@ -188,11 +188,10 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
 end)
 
-
 RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
     local _source <const> = source
     local _target <const> = target
-    local user            = Core.getUser(_source)
+    local user = Core.getUser(_source)
     if not user then return end
     if not hasJob(user) then return end
 
@@ -200,7 +199,6 @@ RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
         TriggerClientEvent("vorp_police:Client:dragPlayer", _target, _source)
     end
 end)
-
 
 CreateThread(function()
     if not Config.CuffItem or not Config.KeysItem then return end
@@ -213,7 +211,7 @@ CreateThread(function()
 
         local result <const> = Core.Callback.TriggerAwait("vorp_police:server:isPlayerCuffed", _source)
         if result[1] then
-            Core.NotifyObjective(_source, "player is already cuffed remove cuffs first", 5000)
+            Core.NotifyObjective(_source, T.Cuff.PlayerCuffAlready, 5000)
             return
         end
         -- no player nearby
@@ -223,7 +221,6 @@ CreateThread(function()
         TriggerClientEvent("vorp_police:Client:PlayerCuff", result[2], "cuff")
     end)
 
-
     Inv:registerUsableItem(Config.KeysItem, function(data)
         local _source <const> = data.source
 
@@ -231,7 +228,7 @@ CreateThread(function()
 
         local result <const> = Core.Callback.TriggerAwait("vorp_police:server:isPlayerCuffed", _source)
         if not result[1] then
-            Core.NotifyObjective(_source, "player is not cuffed to use the keys", 5000)
+            Core.NotifyObjective(_source, T.Cuff.PlayerNotcuffed, 5000)
             return
         end
 
@@ -246,7 +243,7 @@ CreateThread(function()
     end)
 end)
 
---* CHECK IF PLAYER IS ONDUTY
+--* CHECK IF PLAYER IS ON DUTY
 Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args)
     local user <const> = Core.getUser(source)
     if not user then return end
@@ -263,7 +260,6 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
     Player(source).state:set('isPoliceDuty', false, true)
     return CB(false)
 end)
-
 
 --* ON PLAYER DROP
 AddEventHandler("playerDropped", function()
