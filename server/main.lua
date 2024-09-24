@@ -1,6 +1,8 @@
-local Core      = exports.vorp_core:GetCore()
-local Inv       = exports.vorp_inventory
-local T         = Translation.Langs[Config.Lang]
+local Core          = exports.vorp_core:GetCore()
+local Inv           = exports.vorp_inventory
+local T             = Translation.Langs[Config.Lang]
+local PlayersAlerts = {}
+local JobsToAlert   = {}
 
 local function registerStorage(prefix, name, limit)
     local isInvRegstered <const> = Inv:isCustomInventoryRegistered(prefix)
@@ -16,8 +18,8 @@ local function registerStorage(prefix, name, limit)
             UsePermissions = false,
             UseBlackList = false,
             whitelistWeapons = false,
-            webhook = ""  --Add webhook Url here
-        
+            webhook = "" --Add webhook Url here
+
         }
         Inv:registerInventory(data)
     end
@@ -107,10 +109,10 @@ AddEventHandler("onResourceStart", function(resource)
         registerStorage(prefix, value.Name, value.Limit)
     end
 
-        if Config.DevMode then
-           TriggerClientEvent("chat:addSuggestion", -1, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
-           RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
-        end
+    if Config.DevMode then
+        TriggerClientEvent("chat:addSuggestion", -1, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
+        RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
+    end
 end)
 
 -- vorpCharSelect
@@ -266,16 +268,139 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
     return CB(false)
 end)
 
+--* ON PLAYER JOB CHANGE
+AddEventHandler("vorp:playerJobChange", function(source, new, old)
+    if not Config.PoliceJobs[new] then return end
+    TriggerClientEvent("vorp_police:Client:JobUpdate", source)
+end)
+
+local function isPoliceOnCall(source)
+    if not next(PlayersAlerts) then return false, 0 end
+
+    for key, value in pairs(PlayersAlerts) do
+        if value == source then
+            return true, value
+        end
+    end
+    return false, 0
+end
+
+local function getPlayerFromCall(source)
+    for key, value in pairs(PlayersAlerts) do
+        if value == source then
+            return key
+        end
+    end
+    return 0
+end
+
+RegisterCommand("alertPolice", function(source, args)
+    if PlayersAlerts[source] then
+        return Core.NotifyObjective(source, "You already alerted the police to cancel it do /cancelalert", 5000)
+    end
+
+    if not next(JobsToAlert) then
+        return Core.NotifyObjective(source, "No one to receive alert at this moment", 5000)
+    end
+
+    if Config.AllowOnlyDeadToAlert then
+        local Character = Core.getUser(source).getUsedCharacter
+        local dead      = Character.isdead
+        if not dead then return Core.NotifyObjective(source, "You are not dead to alert police", 5000) end
+    end
+
+    local sourcePlayer <const> = GetPlayerPed(source)
+    local sourceCoords <const> = GetEntityCoords(sourcePlayer)
+    local closestDistance      = math.huge
+    local closestPolice        = nil
+
+    for key, _ in pairs(JobsToAlert) do
+        local player <const> = GetPlayerPed(key)
+        local playerCoords <const> = GetEntityCoords(player)
+        local distance <const> = #(sourceCoords - playerCoords)
+        local isOnCall <const>, _ <const> = isPoliceOnCall(key)
+        if not isOnCall then
+            if distance < closestDistance then
+                closestDistance = distance
+                closestPolice = key
+            end
+        end
+    end
+
+    if not closestPolice then
+        return Core.NotifyObjective(source, "No officers available at this moment", 5000)
+    end
+
+    Core.NotifyObjective(closestPolice, "Player needs help look in the map to see location", 5000)
+    TriggerClientEvent("vorp_police:Client:AlertPolice", closestPolice, sourceCoords)
+    Core.NotifyObjective(source, "Police have been alerted, stay where you are so they can find you", 5000)
+    PlayersAlerts[source] = closestPolice
+end, false)
+
+--cancel alert for players
+RegisterCommand("cancelpolicealert", function(source, args)
+    if not PlayersAlerts[source] then
+        return Core.NotifyObjective(source, "You have not alerted the police", 5000)
+    end
+
+    local isOnCall <const>, police <const> = isPoliceOnCall(source)
+    if isOnCall and police > 0 then
+        TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
+        Core.NotifyObjective(police, "Player has canceled the alert", 5000)
+    end
+
+    PlayersAlerts[source] = nil
+    Core.NotifyObjective(source, "You have canceled the alert", 5000)
+end, false)
+
+
+-- for police to finish alert
+RegisterCommand("finishpolicelert", function(source, args)
+    local _source <const> = source
+
+    local hasJobs <const> = hasJob(Core.getUser(_source))
+    if not hasJobs then
+        return Core.NotifyObjective(_source, "You are not police to use this command", 5000)
+    end
+
+    local isDuty <const> = isOnDuty(_source)
+    if not isDuty then
+        return Core.NotifyObjective(_source, "You are not on duty to finish an alert", 5000)
+    end
+
+    local isOnCall <const>, police <const> = isPoliceOnCall(_source)
+    if isOnCall and police > 0 then
+        TriggerClientEvent("vorp_police:Client:RemoveBlip", _source)
+        Core.NotifyObjective(_source, "you have canceled the alert", 5000)
+    else
+        Core.NotifyObjective(_source, "You are not on call to cancel an alert", 5000)
+    end
+
+    local player <const> = getPlayerFromCall(_source)
+    if player > 0 then
+        Core.NotifyObjective(player, "Police has canceled the alert", 5000)
+        PlayersAlerts[player] = nil
+    end
+end, false)
+
 --* ON PLAYER DROP
 AddEventHandler("playerDropped", function()
     local _source = source
     if Player(_source).state.isPoliceDuty then
         Player(_source).state:set('isPoliceDuty', nil, true)
     end
-end)
 
---* ON PLAYER JOB CHANGE
-AddEventHandler("vorp:playerJobChange", function(source, new, old)
-    if not Config.PoliceJobs[new] then return end
-    TriggerClientEvent("vorp_police:Client:JobUpdate", source)
+    if JobsToAlert[_source] then
+        JobsToAlert[_source] = nil
+    end
+
+    local isOnCall <const>, police <const> = isPoliceOnCall(_source)
+    if isOnCall and police > 0 then
+        TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
+        Core.NotifyObjective(police, "Player has disconnected call canceled", 5000)
+    end
+
+    if PlayersAlerts[_source] then
+        PlayersAlerts[_source] = nil
+    end
 end)

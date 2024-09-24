@@ -1,9 +1,10 @@
-local Core          = exports.vorp_core:GetCore()
-local MenuData      = exports.vorp_menu:GetMenuData()
-local T             = Translation.Langs[Config.Lang]
-local draggedBy     = -1
-local drag          = false
-local wasDragged    = false
+local Core       = exports.vorp_core:GetCore()
+local MenuData   = exports.vorp_menu:GetMenuData()
+local T          = Translation.Langs[Config.Lang]
+local draggedBy  = -1
+local drag       = false
+local wasDragged = false
+local blip       = 0
 
 -- on resource stop
 AddEventHandler("onResourceStop", function(resource)
@@ -139,19 +140,18 @@ local function Handle()
             local distanceStation <const> = #(coords - value.Coords)
             if distanceStation < 2.0 then
                 sleep = 0
-              
-                    local label <const> = VarString(10, "LITERAL_STRING", value.Name)
-                    UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
 
-                    if UiPromptHasStandardModeCompleted(prompt, 0) then
-                        local job <const> = LocalPlayer.state.Character.Job
-                        if Config.SheriffJobs[job] then
-                            OpenSheriffMenu()
-                        else
-                            Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
-                        end
+                local label <const> = VarString(10, "LITERAL_STRING", value.Name)
+                UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
+
+                if UiPromptHasStandardModeCompleted(prompt, 0) then
+                    local job <const> = LocalPlayer.state.Character.Job
+                    if Config.SheriffJobs[job] then
+                        OpenSheriffMenu()
+                    else
+                        Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
                     end
-                
+                end
             end
         end
 
@@ -353,7 +353,7 @@ local function OpenPoliceMenu()
 
     if Config.UseTeleportsMenu then
         table.insert(elements, {
-            label = T.Teleport.TeleportTo ,
+            label = T.Teleport.TeleportTo,
             value = "teleports",
             desc = T.Teleport.TeleportToDifferentLocations .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
         })
@@ -446,4 +446,33 @@ CreateThread(function()
         end
         Wait(sleep)
     end
+end)
+
+
+RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
+    if blip ~= 0 then return end -- dont allow more than one call
+
+    blip = BlipAddForCoords(Config.Blips.Style, targetCoords.x, targetCoords.y, targetCoords.z)
+    SetBlipSprite(blip, Config.Blips.Sprite)
+    BlipAddModifier(blip, Config.Blips.Color)
+    SetBlipName(blip, "player alert")
+
+    StartGpsMultiRoute(joaat("COLOR_RED"), true, true)
+    AddPointToGpsMultiRoute(targetCoords.x, targetCoords.y, targetCoords.z, false)
+    SetGpsMultiRouteRender(true)
+
+    repeat Wait(1000) until #(GetEntityCoords(PlayerPedId()) - targetCoords) < 15.0 or blip == 0
+
+    RemoveBlip(blip)
+    blip = 0
+    ClearGpsMultiRoute()
+    Core.NotifyObjective("you have arrived to the location look for the player", 5000)
+end)
+
+
+RegisterNetEvent("vorp_police:Client:RemoveBlip", function()
+    if blip == 0 then return end
+    RemoveBlip(blip)
+    blip = 0
+    ClearGpsMultiRoute()
 end)

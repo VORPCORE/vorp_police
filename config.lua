@@ -1,22 +1,30 @@
-Config = {}
-Config.DevMode = true
+Config                      = {}
+
+Config.DevMode              = true
+
 Config.Align                = "top-left"   -- menu alignment
+
 Config.Lang                 = "English"    -- language you want to use please make sure its in the translation.lua
+
 Config.Dragcommand          = "Drag"       --Comand to drag players
+
 Config.PoliceMenuCommand    = 'policemenu' -- Command to go on duty and teleport
+
+Config.AllowOnlyDeadToAlert = true         -- if true only dead players can alert police if false anyone can alert police
+
 -- add any job names here
-Config.PoliceJobs = {
+Config.PoliceJobs           = {
     police = true,
     sheriff = true,
     marshall = true,
 }
 
-Config.Keys = { -- prompts
+Config.Keys                 = { -- prompts
     B = 0x4CC0E2FE,
 }
 
 -- jobs allowed to hire
-Config.JobLabels = {
+Config.JobLabels            = {
     police = "Police",
     sheriff = "Sheriff",
     marshall = "Marshall",
@@ -32,18 +40,16 @@ Config.SheriffJobs = {
 
 
 -- items
-Config.CuffItem = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
+Config.CuffItem         = "handcuffs" -- can only uncuff if theres a key for the handcuffs
 
-Config.KeysItem =
-"handcuffkey"                   -- when you uncuff a player you will get items handcuffs if it doesnt have one already in your inventory
-
+Config.KeysItem         = "handcuffkey" -- when using this will get you handcuffs if you dont have one already
 
 -- if true storage for every police station will be shared if false they will be unique
-Config.ShareStorage = true
+Config.ShareStorage     = true
 
 -- storage locations
 --check the server.lua for webhook url location line 19 in server.lua
-Config.Storage = {
+Config.Storage          = {
 
     Valentine = {
         Name = "Storage",
@@ -88,7 +94,7 @@ Config.Storage = {
 Config.UseTeleportsMenu = true
 
 -- set up locations to teleport to or from
-Config.Teleports = {
+Config.Teleports        = {
 
     Valentine = {
         Name = " Valentine",
@@ -123,11 +129,18 @@ Config.Teleports = {
 }
 
 --blips for stations
-Config.Blips = {
+Config.Blips            = {
     Sprite = "blip_mp_bounty_hunter_introduction",
     Color = "COLOR_WHITE",
     Style = "BLIP_STYLE_FRIENDLY_ON_RADAR",
 }
+
+Config.AlertBlips       = {
+    Color = "COLOR_RED",
+    Style = "BLIP_STYLE_CHALLENGE_OBJECTIVE",
+    Sprite = "blip_mp_bounty_hunter_introduction",
+}
+
 
 -- police stations  boss menu locations
 Config.Stations = {
