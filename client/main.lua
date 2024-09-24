@@ -139,7 +139,7 @@ local function Handle()
             local distanceStation <const> = #(coords - value.Coords)
             if distanceStation < 2.0 then
                 sleep = 0
-                if distanceStation < 1.5 then
+              
                     local label <const> = VarString(10, "LITERAL_STRING", value.Name)
                     UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
 
@@ -151,7 +151,7 @@ local function Handle()
                             Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
                         end
                     end
-                end
+                
             end
         end
 
