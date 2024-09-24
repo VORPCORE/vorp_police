@@ -106,6 +106,11 @@ AddEventHandler("onResourceStart", function(resource)
         end
         registerStorage(prefix, value.Name, value.Limit)
     end
+
+        if Config.DevMode then
+           TriggerClientEvent("chat:addSuggestion", -1, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
+           RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
+        end
 end)
 
 -- vorpCharSelect
