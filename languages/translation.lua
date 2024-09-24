@@ -10,7 +10,8 @@ Translation.Langs = {
       SheriffMenu = "Sheriff Menu",
       HireFireMenu = "Hire/Fire Menu",
       OpenPoliceMenu = "Open Police Menu",
-      Press = "Press"
+      Press = "Press",
+      SubMenu = "SubMenu"
     },
     Teleport = {
       TeleportTo = "Teleport to ",
