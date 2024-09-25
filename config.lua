@@ -54,39 +54,44 @@ Config.Storage          = {
     Valentine = {
         Name = "Storage",
         Limit = 1000,
-        Coords = vector3(-277.004, 810.934, 118.382),
+        Coords = vector3(-276.97, 810.83, 119.38),
     },
     Strawberry = {
         Name = "Storage",
         Limit = 1000,
-        Coords = vector3(-1811.868, -353.766, 163.649),
+        Coords = vector3(-1814.17, -354.75, 164.65),
     },
     Blackwater = {
         Name = "Armoury",
         Limit = 1000,
-        Coords = vector3(-766.4104, -1271.5747, 44.0613),
+        Coords = vector3(-765.12, -1272.37, 44.04),
     },
     Rhodes = {
         Name = "Armoury",
         Limit = 1000,
-        Coords = vector3(1361.552, -1303.204, 76.767),
+        Coords = vector3(1361.17, -1305.83, 77.76),
 
     },
     SaintDenis = {
         Name = "Armoury",
         Limit = 1000,
-        Coords = vector3(2507.538, -1301.395, 47.953),
+        Coords = vector3(2494.62, -1304.3, 48.95),
 
     },
     Tumbleweed = {
         Name = "Armoury",
         Limit = 1000,
-        Coords = vector3(-5526.896, -2928.556, -2.360),
+        Coords = vector3(-5526.59, -2928.51, -1.36),
     },
     Annesburg = {
         Name = "Armoury",
         Limit = 1000,
-        Coords = vector3(2909.674, 1309.006, 43.938),
+        Coords = vector3(2904.03, 1309.86, 44.94),
+    },
+    Armadillo = {
+        Name = "Armoury",
+        Limit = 1000,
+        Coords = vector3(-3622.69, -2600.0, -13.34),
     },
 }
 
@@ -98,33 +103,37 @@ Config.Teleports        = {
 
     Valentine = {
         Name = " Valentine",
-        Coords = vector3(-282.46, 819.99, 119.4),
+        Coords = vector3(-278.17, 814.88, 119.28),
     },
     Strawberry = {
         Name = "Strawberry",
-        Coords = vector3(-1811.868, -353.766, 163.649),
+        Coords = vector3(-1805.13, -355.05, 164.14),
     },
     Blackwater = {
         Name = "Blackwater",
-        Coords = vector3(-766.4104, -1271.5747, 44.0613),
+        Coords = vector3(-752.53, -1266.1, 43.43),
     },
     Rhodes = {
         Name = "Rhodes",
-        Coords = vector3(1361.552, -1303.204, 76.767),
+        Coords = vector3(1354.9, -1306.85, 76.94),
 
     },
     SaintDenis = {
         Name = "Saint Denis",
-        Coords = vector3(2507.538, -1301.395, 47.953),
+        Coords = vector3(2510.0, -1318.0, 48.53),
 
     },
     Tumbleweed = {
         Name = "Tumbleweed",
-        Coords = vector3(-5526.896, -2928.556, -2.360),
+        Coords = vector3(-5531.39, -2935.31, -1.91),
     },
     Annesburg = {
         Name = "Annesburg",
-        Coords = vector3(2909.674, 1309.006, 43.938),
+        Coords = vector3(2916.59, 1317.09, 44.35),
+    },
+    Armadillo = {
+        Name = "Armadillo",
+        Coords = vector3(-3610.4, -2599.16, -13.88),
     },
 }
 
@@ -147,43 +156,49 @@ Config.Stations = {
 
     Valentine = {
         Name = "Valentine",
-        Coords = vector3(-277.07, 803.76, 119.43),
+        Coords = vector3(-277.73, 804.84, 119.38),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     Strawberry = {
         Name = "Strawberry",
-        Coords = vector3(-1811.868, -353.766, 163.649),
+        Coords = vector3(-1807.03, -348.47, 164.65),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     Blackwater = {
         Name = "Blackwater",
-        Coords = vector3(-766.4104, -1271.5747, 44.0613),
+        Coords = vector3(-761.95, -1272.62, 44.05),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     Rhodes = {
         Name = "Rhodes",
-        Coords = vector3(1361.552, -1303.204, 76.767),
+        Coords = vector3(1361.57, -1303.4, 77.77),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     SaintDenis = {
         Name = "Saint Denis",
-        Coords = vector3(2507.538, -1301.395, 47.953),
+        Coords = vector3(2508.46, -1308.56, 48.95),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     Tumbleweed = {
         Name = "Tumbleweed",
-        Coords = vector3(-5526.896, -2928.556, -2.360),
+        Coords = vector3(-5529.55, -2929.25, -1.36),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
     Annesburg = {
         Name = "Annesburg",
-        Coords = vector3(2909.674, 1309.006, 43.938),
+        Coords = vector3(2907.11, 1313.93, 44.94),
+        Teleports = Config.Teleports,
+        Storage = Config.Storage,
+    },
+    Armadillo = {
+        Name = "Armadillo",
+        Coords = vector3(-3624.7, -2601.96, -13.34),
         Teleports = Config.Teleports,
         Storage = Config.Storage,
     },
