@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'rdr3'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
-author 'VORP'
+author 'VORP @outsider'
 description 'A police job for vorp core framework'
 repository 'https://github.com/VORPCORE/vorp_police'
 lua54 'yes'
