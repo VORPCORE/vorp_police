@@ -292,27 +292,22 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
     local sourcename, identifier, steamname = getSourceInfo(source)
     local Character <const> = user.getUsedCharacter
     local Job <const> = Character.job
-    -- Creating the description with sourcename included
     local description = "**"..Logs.Lang.Steam.."** "..steamname .. "\n" ..
                         "**"..Logs.Lang.Identifier.."** "..identifier .. "\n" ..
                         "**"..Logs.Lang.PlayerID.."** "..source.."\n" ..
                         "**"..Logs.Lang.Job.."** "..Job.."\n" ..
-                        "**"..Logs.Lang.FiredBy.."** "..sourcename.."\n"  -- Added sourcename
+                        "**"..Logs.Lang.PlayerName.."** "..sourcename.."\n"  
 
     if not isOnDuty(source) then
-        -- Player is going ON duty
         Player(source).state:set('isPoliceDuty', true, true)
 
-        -- Webhook for going ON duty
         description = description .. "**"..Logs.Lang.JobOnDuty.."**"
         Core.AddWebhook(Logs.Lang.JobOnDuty, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
 
         return CB(true)
     else
-        -- Player is going OFF duty
         Player(source).state:set('isPoliceDuty', false, true)
 
-        -- Webhook for going OFF duty
         description = description .. "**"..Logs.Lang.JobOffDuty.."**"
         Core.AddWebhook(Logs.Lang.JobOffDuty, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
 
