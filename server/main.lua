@@ -18,7 +18,7 @@ local function registerStorage(prefix, name, limit)
             UsePermissions = false,
             UseBlackList = false,
             whitelistWeapons = false,
-            webhook = "" --Add webhook Url here
+            webhook = Logs.StorageWebook,
 
         }
         Inv:registerInventory(data)
@@ -51,7 +51,17 @@ local function openPoliceMenu(source)
 
     TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
 end
-
+local function getSourceInfo(_source)
+	local user = Core.getUser(_source)
+	if not user then
+		return
+	end
+	local sourceCharacter = user.getUsedCharacter
+	local charname = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
+	local sourceIdentifier = sourceCharacter.identifier
+	local steamname = GetPlayerName(_source)
+	return charname, sourceIdentifier, steamname
+end
 
 --* OPEN STORAGE
 RegisterNetEvent("vorp_police:Server:OpenStorage", function(key)
@@ -107,6 +117,7 @@ AddEventHandler("onResourceStart", function(resource)
             prefix = "vorp_police_storage"
         end
         registerStorage(prefix, value.Name, value.Limit)
+
     end
 
     if Config.DevMode then
@@ -114,7 +125,6 @@ AddEventHandler("onResourceStart", function(resource)
         RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
     end
 end)
-
 -- vorpCharSelect
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if not Config.PoliceJobs[char.job] then return end
@@ -160,7 +170,18 @@ RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
+    local sourcename, identifier, steamname = getSourceInfo(_source)  
+    local targetname, identifier2, steamname2 = getSourceInfo(target)  -- Hired player info
+
+    local description = "**"..Logs.Lang.HiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
+    "\n\n**"..Logs.Lang.Job.."** " .. label .. "\n\n" ..
+    "**"..Logs.Lang.HiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
+    .."** "..Logs.Lang.PlayerID .."** ".. _source
+    -- Send webhook notification
+    Core.AddWebhook(Logs.Lang.JobHired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
 end)
+
+
 
 --* FIRE PLAYER
 RegisterNetEvent("vorp_police:server:firePlayer", function(id)
@@ -193,6 +214,15 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
     end
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
+    local sourcename, identifier, steamname = getSourceInfo(_source)  
+    local targetname, identifier2, steamname2 = getSourceInfo(target)  
+
+    local description = "**"..Logs.Lang.FiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
+    "\n\n**"..Logs.Lang.FromJob.."** " .. targetJob .. "\n\n" ..
+    "**"..Logs.Lang.FiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
+    .."** "..Logs.Lang.PlayerID .."** ".. target
+    Core.AddWebhook(Logs.Lang.Jobfired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
+    
 end)
 
 RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
@@ -259,13 +289,35 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
         return CB(false)
     end
 
-    if not isOnDuty(source) then
-        Player(source).state:set('isPoliceDuty', true, true)
-        return CB(true)
-    end
+    local sourcename, identifier, steamname = getSourceInfo(source)
+    local Character <const> = user.getUsedCharacter
+    local Job <const> = Character.job
+    -- Creating the description with sourcename included
+    local description = "**"..Logs.Lang.Steam.."** "..steamname .. "\n" ..
+                        "**"..Logs.Lang.Identifier.."** "..identifier .. "\n" ..
+                        "**"..Logs.Lang.PlayerID.."** "..source.."\n" ..
+                        "**"..Logs.Lang.Job.."** "..Job.."\n" ..
+                        "**"..Logs.Lang.FiredBy.."** "..sourcename.."\n"  -- Added sourcename
 
-    Player(source).state:set('isPoliceDuty', false, true)
-    return CB(false)
+    if not isOnDuty(source) then
+        -- Player is going ON duty
+        Player(source).state:set('isPoliceDuty', true, true)
+
+        -- Webhook for going ON duty
+        description = description .. "**"..Logs.Lang.JobOnDuty.."**"
+        Core.AddWebhook(Logs.Lang.JobOnDuty, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
+
+        return CB(true)
+    else
+        -- Player is going OFF duty
+        Player(source).state:set('isPoliceDuty', false, true)
+
+        -- Webhook for going OFF duty
+        description = description .. "**"..Logs.Lang.JobOffDuty.."**"
+        Core.AddWebhook(Logs.Lang.JobOffDuty, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
+
+        return CB(false)
+    end
 end)
 
 --* ON PLAYER JOB CHANGE
