@@ -12,7 +12,7 @@ Config.PoliceMenuCommand    = 'policemenu' -- Command to go on duty and teleport
 
 Config.alertPolice          = "alertPolice"
 Config.cancelpolicealert    = "cancelpolicealert"
-Config.cancelpolicealert    = "finishpolicelert"
+Config.finishpolicelert    = "finishpolicelert"
 Config.AllowOnlyDeadToAlert = true         -- if true only dead players can alert police if false anyone can alert police
 
 -- add any job names here
