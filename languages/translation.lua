@@ -62,7 +62,8 @@ Translation.Langs = {
       canceled = "You have canceled the alert",
       notoncall = "You are not on call to cancel an alert",
       policecancel = "Police has canceled the alert",
-      playerDropped = "Player has disconnected call canceled"
+      playerDropped = "Player has disconnected call canceled",
+      arive ="you have arrived to the location look for the player"
   },
   --add your language here Open PR to Murge other languages to the Main repo
   --[[

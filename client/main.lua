@@ -466,7 +466,7 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
     RemoveBlip(blip)
     blip = 0
     ClearGpsMultiRoute()
-    Core.NotifyObjective("you have arrived to the location look for the player", 5000)
+    Core.NotifyObjective(T.Alerts.arive, 5000)
 end)
 
 
