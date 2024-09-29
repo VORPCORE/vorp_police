@@ -123,4 +123,5 @@ Translation.Langs = {
   ]]
     --add your language here Open PR to Murge other languages to the Main repo
 
+},
 }
