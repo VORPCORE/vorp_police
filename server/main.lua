@@ -18,7 +18,7 @@ local function registerStorage(prefix, name, limit)
             UsePermissions = false,
             UseBlackList = false,
             whitelistWeapons = false,
-            webhook = "" --Add webhook Url here
+            webhook = Logs.StorageWebook,
 
         }
         Inv:registerInventory(data)
@@ -51,7 +51,17 @@ local function openPoliceMenu(source)
 
     TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
 end
-
+local function getSourceInfo(_source)
+	local user = Core.getUser(_source)
+	if not user then
+		return
+	end
+	local sourceCharacter = user.getUsedCharacter
+	local charname = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
+	local sourceIdentifier = sourceCharacter.identifier
+	local steamname = GetPlayerName(_source)
+	return charname, sourceIdentifier, steamname
+end
 
 --* OPEN STORAGE
 RegisterNetEvent("vorp_police:Server:OpenStorage", function(key)
@@ -107,6 +117,7 @@ AddEventHandler("onResourceStart", function(resource)
             prefix = "vorp_police_storage"
         end
         registerStorage(prefix, value.Name, value.Limit)
+
     end
 
     if Config.DevMode then
@@ -114,7 +125,6 @@ AddEventHandler("onResourceStart", function(resource)
         RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
     end
 end)
-
 -- vorpCharSelect
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if not Config.PoliceJobs[char.job] then return end
@@ -160,7 +170,17 @@ RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
+    local sourcename, identifier, steamname = getSourceInfo(_source)  
+    local targetname, identifier2, steamname2 = getSourceInfo(target)  
+
+    local description = "**"..Logs.Lang.HiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
+    "\n\n**"..Logs.Lang.Job.."** " .. label .. "\n\n" ..
+    "**"..Logs.Lang.HiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
+    .."** "..Logs.Lang.PlayerID .."** ".. _source
+    Core.AddWebhook(Logs.Lang.JobHired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
 end)
+
+
 
 --* FIRE PLAYER
 RegisterNetEvent("vorp_police:server:firePlayer", function(id)
@@ -193,6 +213,15 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
     end
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
+    local sourcename, identifier, steamname = getSourceInfo(_source)  
+    local targetname, identifier2, steamname2 = getSourceInfo(target)  
+
+    local description = "**"..Logs.Lang.FiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
+    "\n\n**"..Logs.Lang.FromJob.."** " .. targetJob .. "\n\n" ..
+    "**"..Logs.Lang.FiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
+    .."** "..Logs.Lang.PlayerID .."** ".. target
+    Core.AddWebhook(Logs.Lang.Jobfired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
+    
 end)
 
 RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
@@ -259,13 +288,30 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
         return CB(false)
     end
 
+    local sourcename, identifier, steamname = getSourceInfo(source)
+    local Character <const> = user.getUsedCharacter
+    local Job <const> = Character.job
+    local description = "**"..Logs.Lang.Steam.."** "..steamname .. "\n" ..
+                        "**"..Logs.Lang.Identifier.."** "..identifier .. "\n" ..
+                        "**"..Logs.Lang.PlayerID.."** "..source.."\n" ..
+                        "**"..Logs.Lang.Job.."** "..Job.."\n" ..
+                        "**"..Logs.Lang.PlayerName.."** "..sourcename.."\n"  
+
     if not isOnDuty(source) then
         Player(source).state:set('isPoliceDuty', true, true)
-        return CB(true)
-    end
 
-    Player(source).state:set('isPoliceDuty', false, true)
-    return CB(false)
+        description = description .. "**"..Logs.Lang.JobOnDuty.."**"
+        Core.AddWebhook(Logs.Lang.JobOnDuty, Logs.DutyWebhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
+
+        return CB(true)
+    else
+        Player(source).state:set('isPoliceDuty', false, true)
+
+        description = description .. "**"..Logs.Lang.JobOffDuty.."**"
+        Core.AddWebhook(Logs.Lang.JobOffDuty, Logs.DutyWebhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
+
+        return CB(false)
+    end
 end)
 
 --* ON PLAYER JOB CHANGE
@@ -294,19 +340,19 @@ local function getPlayerFromCall(source)
     return 0
 end
 
-RegisterCommand("alertPolice", function(source, args)
+RegisterCommand(Config.alertPolice, function(source, args)
     if PlayersAlerts[source] then
-        return Core.NotifyObjective(source, "You already alerted the police to cancel it do /cancelalert", 5000)
+        return Core.NotifyObjective(source,T.Alerts.tocancalert, 5000)
     end
 
     if not next(JobsToAlert) then
-        return Core.NotifyObjective(source, "No one to receive alert at this moment", 5000)
+        return Core.NotifyObjective(source, T.Alerts.noofficers, 5000)
     end
 
     if Config.AllowOnlyDeadToAlert then
         local Character = Core.getUser(source).getUsedCharacter
         local dead      = Character.isdead
-        if not dead then return Core.NotifyObjective(source, "You are not dead to alert police", 5000) end
+        if not dead then return Core.NotifyObjective(source, T.Alerts.onlydead, 5000) end
     end
 
     local sourcePlayer <const> = GetPlayerPed(source)
@@ -328,57 +374,57 @@ RegisterCommand("alertPolice", function(source, args)
     end
 
     if not closestPolice then
-        return Core.NotifyObjective(source, "No officers available at this moment", 5000)
+        return Core.NotifyObjective(source, T.Alerts.noofficers, 5000)
     end
 
-    Core.NotifyObjective(closestPolice, "Player needs help look in the map to see location", 5000)
+    Core.NotifyObjective(closestPolice, T.Alerts.policealert, 5000)
     TriggerClientEvent("vorp_police:Client:AlertPolice", closestPolice, sourceCoords)
-    Core.NotifyObjective(source, "Police have been alerted, stay where you are so they can find you", 5000)
+    Core.NotifyObjective(source, T.Alerts.playeralert, 5000)
     PlayersAlerts[source] = closestPolice
 end, false)
 
 --cancel alert for players
-RegisterCommand("cancelpolicealert", function(source, args)
+RegisterCommand(Config.cancelpolicealert, function(source, args)
     if not PlayersAlerts[source] then
-        return Core.NotifyObjective(source, "You have not alerted the police", 5000)
+        return Core.NotifyObjective(source, T.Alerts.noalerts, 5000)
     end
 
     local isOnCall <const>, police <const> = isPoliceOnCall(source)
     if isOnCall and police > 0 then
         TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
-        Core.NotifyObjective(police, "Player has canceled the alert", 5000)
+        Core.NotifyObjective(police, T.Alerts.alertcanceled, 5000)
     end
 
     PlayersAlerts[source] = nil
-    Core.NotifyObjective(source, "You have canceled the alert", 5000)
+    Core.NotifyObjective(source, T.Alerts.canceled, 5000)
 end, false)
 
 
 -- for police to finish alert
-RegisterCommand("finishpolicelert", function(source, args)
+RegisterCommand(Config.finishpolicelert, function(source, args)
     local _source <const> = source
 
     local hasJobs <const> = hasJob(Core.getUser(_source))
     if not hasJobs then
-        return Core.NotifyObjective(_source, "You are not police to use this command", 5000)
+        return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
     local isDuty <const> = isOnDuty(_source)
     if not isDuty then
-        return Core.NotifyObjective(_source, "You are not on duty to finish an alert", 5000)
+        return Core.NotifyObjective(_source, T.Duty.YouAreNotOnDuty, 5000)
     end
 
     local isOnCall <const>, police <const> = isPoliceOnCall(_source)
     if isOnCall and police > 0 then
         TriggerClientEvent("vorp_police:Client:RemoveBlip", _source)
-        Core.NotifyObjective(_source, "you have canceled the alert", 5000)
+        Core.NotifyObjective(_source, T.Alerts.canceled, 5000)
     else
-        Core.NotifyObjective(_source, "You are not on call to cancel an alert", 5000)
+        Core.NotifyObjective(_source, T.Alerts.notoncall, 5000)
     end
 
     local player <const> = getPlayerFromCall(_source)
     if player > 0 then
-        Core.NotifyObjective(player, "Police has canceled the alert", 5000)
+        Core.NotifyObjective(player, T.Alerts.policecancel, 5000)
         PlayersAlerts[player] = nil
     end
 end, false)
@@ -397,7 +443,7 @@ AddEventHandler("playerDropped", function()
     local isOnCall <const>, police <const> = isPoliceOnCall(_source)
     if isOnCall and police > 0 then
         TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
-        Core.NotifyObjective(police, "Player has disconnected call canceled", 5000)
+        Core.NotifyObjective(police, T.Alerts.playerDropped, 5000)
     end
 
     if PlayersAlerts[_source] then

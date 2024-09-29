@@ -8,12 +8,15 @@ repository 'https://github.com/VORPCORE/vorp_police'
 lua54 'yes'
 
 shared_scripts {
-    'config.lua',
+    'configs/config.lua',
     'languages/translation.lua'
 }
 client_script 'client/main.lua'
-server_script 'server/main.lua'
-
+server_scripts { 
+    'server/main.lua',
+    'configs/logs.lua',
+    
+}
 version '0.2'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'

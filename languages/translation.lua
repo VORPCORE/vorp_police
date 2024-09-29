@@ -51,7 +51,19 @@ Translation.Langs = {
       OnlyPoliceopenmenu = "You Are Not Allowed ToOpen This Menu",
       Playernearby = "There Is A Player Nearby Cant Open Inventory"
     },
-
+    Alerts = {
+      tocancalert = "You already alerted the police to cancel it do /cancelalert",
+      noofficers = "No one to receive alert at this moment",
+      onlydead = "You are not dead to alert police",
+      policealert = "Player needs help look in the map to see location",
+      playeralert = "Police have been alerted, stay where you are so they can find you",
+      noalerts = "You have not alerted the police",
+      alertcanceled = "Player has canceled the alert",
+      canceled = "You have canceled the alert",
+      notoncall = "You are not on call to cancel an alert",
+      policecancel = "Police has canceled the alert",
+      playerDropped = "Player has disconnected call canceled",
+      arive ="you have arrived to the location look for the player"
   },
   --add your language here Open PR to Murge other languages to the Main repo
   --[[
@@ -105,11 +117,22 @@ Translation.Langs = {
       OnlyPoliceopenmenu = "You Are Not Allowed ToOpen This Menu",
       Playernearby = "There Is A Player Nearby Cant Open Inventory"
     },
-    WebHook = {
-      Url = "", --Add webhook Url here
+    Alerts = {
+      tocancalert = "You already alerted the police to cancel it do /cancelalert",
+      noofficers = "No one to receive alert at this moment",
+      onlydead = "You are not dead to alert police",
+      policealert = "Player needs help look in the map to see location",
+      playeralert = "Police have been alerted, stay where you are so they can find you",
+      noalerts = "You have not alerted the police",
+      alertcanceled = "Player has canceled the alert",
+      canceled = "You have canceled the alert",
+      notoncall = "You are not on call to cancel an alert",
+      policecancel = "Police has canceled the alert",
+      playerDropped = "Player has disconnected call canceled"
+  
     },
-  },
   ]]
     --add your language here Open PR to Murge other languages to the Main repo
 
+},
 }
