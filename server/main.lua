@@ -305,6 +305,9 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
 
         return CB(true)
     else
+        if JobsToAlert[source] then
+            JobsToAlert[source] = nil
+        end
         Player(source).state:set('isPoliceDuty', false, true)
 
         description = description .. "**"..Logs.Lang.JobOffDuty.."**"
