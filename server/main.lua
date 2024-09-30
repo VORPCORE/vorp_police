@@ -51,16 +51,13 @@ local function openPoliceMenu(source)
 
     TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
 end
-local function getSourceInfo(_source)
-	local user = Core.getUser(_source)
-	if not user then
-		return
-	end
-	local sourceCharacter = user.getUsedCharacter
-	local charname = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
-	local sourceIdentifier = sourceCharacter.identifier
-	local steamname = GetPlayerName(_source)
-	return charname, sourceIdentifier, steamname
+
+local function getSourceInfo(_source, user)
+    local sourceCharacter <const> = user.getUsedCharacter
+    local charname <const> = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
+    local sourceIdentifier <const> = sourceCharacter.identifier
+    local steamname <const> = GetPlayerName(_source)
+    return charname, sourceIdentifier, steamname
 end
 
 --* OPEN STORAGE
@@ -117,7 +114,6 @@ AddEventHandler("onResourceStart", function(resource)
             prefix = "vorp_police_storage"
         end
         registerStorage(prefix, value.Name, value.Limit)
-
     end
 
     if Config.DevMode then
@@ -127,6 +123,7 @@ AddEventHandler("onResourceStart", function(resource)
 end)
 -- vorpCharSelect
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
+    if Config.DevMode then return end
     if not Config.PoliceJobs[char.job] then return end
     -- add chat suggestion
     TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
@@ -136,10 +133,11 @@ end)
 --* HIRE PLAYER
 RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     local _source <const> = source
-    local User <const> = Core.getUser(_source)
-    if not User then return end
 
-    if not hasJob(User) then
+    local user <const> = Core.getUser(_source)
+    if not user then return end
+
+    if not hasJob(user) then
         return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
@@ -170,13 +168,13 @@ RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     RegisterCommand(Config.PoliceMenuCommand, openPoliceMenu, false)
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
-    local sourcename, identifier, steamname = getSourceInfo(_source)  
-    local targetname, identifier2, steamname2 = getSourceInfo(target)  
+    local sourcename <const>, identifier <const>, steamname <const> = getSourceInfo(user, _source)
+    local targetname <const>, identifier2 <const>, steamname2 <const> = getSourceInfo(targetUser, target)
 
-    local description = "**"..Logs.Lang.HiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
-    "\n\n**"..Logs.Lang.Job.."** " .. label .. "\n\n" ..
-    "**"..Logs.Lang.HiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
-    .."** "..Logs.Lang.PlayerID .."** ".. _source
+    local description <const> = "**" .. Logs.Lang.HiredBy .. "** " .. sourcename .. "\n" .. "** " .. Logs.Lang.Steam .. "** " .. steamname ..
+        "\n" .. "** " .. Logs.Lang.Identifier .. "** " .. identifier .. "\n" .. "** " .. Logs.Lang.PlayerID .. "** " .. _source ..
+        "\n\n**" .. Logs.Lang.Job .. "** " .. label .. "\n\n" .. "**" .. Logs.Lang.HiredPlayer .. "** " .. targetname .. "\n" ..
+        "** " .. Logs.Lang.Steam .. "** " .. steamname2 .. "\n" .. "** " .. Logs.Lang.Identifier .. "** " .. identifier2 .. "\n" .. "** " .. Logs.Lang.PlayerID .. "** " .. _source
     Core.AddWebhook(Logs.Lang.JobHired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
 end)
 
@@ -213,21 +211,21 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
     end
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
-    local sourcename, identifier, steamname = getSourceInfo(_source)  
-    local targetname, identifier2, steamname2 = getSourceInfo(target)  
+    local sourcename <const>, identifier <const>, steamname <const> = getSourceInfo(user, _source)
+    local targetname <const>, identifier2 <const>, steamname2 <const> = getSourceInfo(targetUser, target)
 
-    local description = "**"..Logs.Lang.FiredBy.."** " .. sourcename .. "\n".."** "..Logs.Lang.Steam.. "** "..steamname .. "\n".."** "..Logs.Lang.Identifier .."** ".. identifier .. "\n" .."** "..Logs.Lang.PlayerID .."** " .._source..
-    "\n\n**"..Logs.Lang.FromJob.."** " .. targetJob .. "\n\n" ..
-    "**"..Logs.Lang.FiredPlayer.."** " .. targetname .. "\n".."** " ..Logs.Lang.Steam.. "** "..steamname2 .. "\n".."** "..Logs.Lang.Identifier.."** " .. identifier2 .. "\n" 
-    .."** "..Logs.Lang.PlayerID .."** ".. target
+    local description <const> = "**" .. Logs.Lang.FiredBy .. "** " .. sourcename .. "\n" .. "** " .. Logs.Lang.Steam .. "** " .. steamname ..
+        "\n" .. "** " .. Logs.Lang.Identifier .. "** " .. identifier .. "\n" .. "** " .. Logs.Lang.PlayerID .. "** " .. _source ..
+        "\n\n**" .. Logs.Lang.FromJob .. "** " .. targetJob .. "\n\n" .. "**" .. Logs.Lang.FiredPlayer .. "** " .. targetname ..
+        "\n" .. "** " .. Logs.Lang.Steam .. "** " .. steamname2 .. "\n" .. "** " .. Logs.Lang.Identifier .. "** " .. identifier2 .. "\n"
+        .. "** " .. Logs.Lang.PlayerID .. "** " .. target
     Core.AddWebhook(Logs.Lang.Jobfired, Logs.Webhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.avatar)
-    
 end)
 
 RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
     local _source <const> = source
     local _target <const> = target
-    local user = Core.getUser(_source)
+    local user <const> = Core.getUser(_source)
     if not user then return end
     if not hasJob(user) then return end
 
@@ -284,33 +282,29 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, args
     local user <const> = Core.getUser(source)
     if not user then return end
 
-    if not hasJob(user) then
-        return CB(false)
-    end
+    if not hasJob(user) then return CB(false) end
 
-    local sourcename, identifier, steamname = getSourceInfo(source)
+    local sourcename <const>, identifier <const>, steamname <const> = getSourceInfo(user, source)
     local Character <const> = user.getUsedCharacter
     local Job <const> = Character.job
-    local description = "**"..Logs.Lang.Steam.."** "..steamname .. "\n" ..
-                        "**"..Logs.Lang.Identifier.."** "..identifier .. "\n" ..
-                        "**"..Logs.Lang.PlayerID.."** "..source.."\n" ..
-                        "**"..Logs.Lang.Job.."** "..Job.."\n" ..
-                        "**"..Logs.Lang.PlayerName.."** "..sourcename.."\n"  
+    local description = "**" .. Logs.Lang.Steam .. "** " .. steamname .. "\n" ..
+        "**" .. Logs.Lang.Identifier .. "** " .. identifier .. "\n" ..
+        "**" .. Logs.Lang.PlayerID .. "** " .. source .. "\n" ..
+        "**" .. Logs.Lang.Job .. "** " .. Job .. "\n" ..
+        "**" .. Logs.Lang.PlayerName .. "** " .. sourcename .. "\n"
 
     if not isOnDuty(source) then
         Player(source).state:set('isPoliceDuty', true, true)
+        JobsToAlert[source] = true
 
-        description = description .. "**"..Logs.Lang.JobOnDuty.."**"
+        description = description .. "**" .. Logs.Lang.JobOnDuty .. "**"
         Core.AddWebhook(Logs.Lang.JobOnDuty, Logs.DutyWebhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
 
         return CB(true)
     else
-        if JobsToAlert[source] then
-            JobsToAlert[source] = nil
-        end
-        Player(source).state:set('isPoliceDuty', false, true)
-
-        description = description .. "**"..Logs.Lang.JobOffDuty.."**"
+        JobsToAlert[source] = nil
+        Player(source).state:set('isPoliceDuty', nil, true)
+        description = description .. "**" .. Logs.Lang.JobOffDuty .. "**"
         Core.AddWebhook(Logs.Lang.JobOffDuty, Logs.DutyWebhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
 
         return CB(false)
@@ -345,7 +339,7 @@ end
 
 RegisterCommand(Config.alertPolice, function(source, args)
     if PlayersAlerts[source] then
-        return Core.NotifyObjective(source,T.Alerts.tocancalert, 5000)
+        return Core.NotifyObjective(source, T.Alerts.tocancalert, 5000)
     end
 
     if not next(JobsToAlert) then
@@ -353,8 +347,8 @@ RegisterCommand(Config.alertPolice, function(source, args)
     end
 
     if Config.AllowOnlyDeadToAlert then
-        local Character = Core.getUser(source).getUsedCharacter
-        local dead      = Character.isdead
+        local Character <const> = Core.getUser(source).getUsedCharacter
+        local dead <const> = Character.isdead
         if not dead then return Core.NotifyObjective(source, T.Alerts.onlydead, 5000) end
     end
 
