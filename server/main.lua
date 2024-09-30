@@ -52,7 +52,7 @@ local function openPoliceMenu(source)
     TriggerClientEvent('vorp_police:Client:OpenPoliceMenu', source)
 end
 
-local function getSourceInfo(_source, user)
+local function getSourceInfo(user, _source)
     local sourceCharacter <const> = user.getUsedCharacter
     local charname <const> = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
     local sourceIdentifier <const> = sourceCharacter.identifier
