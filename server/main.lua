@@ -328,15 +328,11 @@ local function isPoliceOnCall(source)
     return false, 0
 end
 
-local function getPoliceOnCall(source)
-    if not next(PlayersAlerts) then return false, 0 end
-
-    for key, value in pairs(PlayersAlerts) do
-        if key == source then
-            return true, value
-        end
+local function getPoliceFromCall(source)
+    if PlayersAlerts[source] then
+        return PlayersAlerts[source]
     end
-    return false, 0
+    return 0
 end
 
 local function getPlayerFromCall(source)
@@ -397,8 +393,8 @@ RegisterCommand(Config.cancelpolicealert, function(source, args)
         return Core.NotifyRightTip(source, T.Alerts.noalerts, 5000)
     end
 
-    local isOnCall <const>, police <const> = getPoliceOnCall(source)
-    if isOnCall and police > 0 then
+    local police <const> = getPoliceFromCall(source)
+    if police > 0 then
         TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
         Core.NotifyObjective(police, T.Alerts.alertcanceled, 5000)
     end

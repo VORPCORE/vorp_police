@@ -11,8 +11,11 @@ Config.Dragcommand          = "Drag"       --Comand to drag players
 Config.PoliceMenuCommand    = 'policemenu' -- Command to go on duty and teleport
 
 Config.alertPolice          = "alertPolice"
+
 Config.cancelpolicealert    = "cancelpolicealert"
+
 Config.finishpolicelert     = "finishpolicealert"
+
 Config.AllowOnlyDeadToAlert = true -- if true only dead players can alert police if false anyone can alert police
 
 -- add any job names here
@@ -35,12 +38,10 @@ Config.JobLabels            = {
 
 
 -- jobs that can open hire menu
-Config.SheriffJobs = {
+Config.SheriffJobs      = {
     sheriff = true,
     marshall = true,
 }
-
-
 
 -- items
 Config.CuffItem         = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
