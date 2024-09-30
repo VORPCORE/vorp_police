@@ -395,8 +395,11 @@ RegisterCommand(Config.cancelpolicealert, function(source, args)
 
     local police <const> = getPoliceFromCall(source)
     if police > 0 then
-        TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
-        Core.NotifyObjective(police, T.Alerts.alertcanceled, 5000)
+        local user <const> = Core.getUser(police)
+        if user then
+            TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
+            Core.NotifyObjective(police, T.Alerts.alertcanceled, 5000)
+        end
     end
 
     PlayersAlerts[source] = nil
