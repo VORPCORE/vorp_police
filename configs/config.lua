@@ -12,8 +12,8 @@ Config.PoliceMenuCommand    = 'policemenu' -- Command to go on duty and teleport
 
 Config.alertPolice          = "alertPolice"
 Config.cancelpolicealert    = "cancelpolicealert"
-Config.finishpolicelert    = "finishpolicelert"
-Config.AllowOnlyDeadToAlert = true         -- if true only dead players can alert police if false anyone can alert police
+Config.finishpolicelert     = "finishpolicealert"
+Config.AllowOnlyDeadToAlert = true -- if true only dead players can alert police if false anyone can alert police
 
 -- add any job names here
 Config.PoliceJobs           = {
@@ -43,7 +43,7 @@ Config.SheriffJobs = {
 
 
 -- items
-Config.CuffItem         = "handcuffs" -- can only uncuff if theres a key for the handcuffs
+Config.CuffItem         = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
 
 Config.KeysItem         = "handcuffkey" -- when using this will get you handcuffs if you dont have one already
 
