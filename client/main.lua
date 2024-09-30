@@ -463,10 +463,12 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
 
     repeat Wait(1000) until #(GetEntityCoords(PlayerPedId()) - targetCoords) < 15.0 or blip == 0
 
+    if blip ~= 0 then
+        Core.NotifyObjective(T.Alerts.arive, 5000)
+    end
     RemoveBlip(blip)
     blip = 0
     ClearGpsMultiRoute()
-    Core.NotifyObjective(T.Alerts.arive, 5000)
 end)
 
 
