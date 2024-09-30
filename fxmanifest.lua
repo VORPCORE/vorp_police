@@ -12,12 +12,12 @@ shared_scripts {
     'languages/translation.lua'
 }
 client_script 'client/main.lua'
-server_scripts { 
+server_scripts {
     'server/main.lua',
     'configs/logs.lua',
-    
+
 }
-version '0.2'
+version '0.3'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_police'

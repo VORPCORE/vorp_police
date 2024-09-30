@@ -229,7 +229,7 @@ RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
     if not user then return end
     if not hasJob(user) then return end
 
-    if target > 0 and Core.getUser(_target) then
+    if _target > 0 and Core.getUser(_target) then
         TriggerClientEvent("vorp_police:Client:dragPlayer", _target, _source)
     end
 end)
