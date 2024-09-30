@@ -328,6 +328,17 @@ local function isPoliceOnCall(source)
     return false, 0
 end
 
+local function getPoliceOnCall(source)
+    if not next(PlayersAlerts) then return false, 0 end
+
+    for key, value in pairs(PlayersAlerts) do
+        if key == source then
+            return true, value
+        end
+    end
+    return false, 0
+end
+
 local function getPlayerFromCall(source)
     for key, value in pairs(PlayersAlerts) do
         if value == source then
@@ -339,11 +350,11 @@ end
 
 RegisterCommand(Config.alertPolice, function(source, args)
     if PlayersAlerts[source] then
-        return Core.NotifyObjective(source, T.Alerts.tocancalert, 5000)
+        return Core.NotifyRightTip(source, T.Alerts.tocancalert, 5000)
     end
 
     if not next(JobsToAlert) then
-        return Core.NotifyObjective(source, T.Alerts.noofficers, 5000)
+        return Core.NotifyRightTip(source, T.Alerts.noofficers, 5000)
     end
 
     if Config.AllowOnlyDeadToAlert then
@@ -371,29 +382,29 @@ RegisterCommand(Config.alertPolice, function(source, args)
     end
 
     if not closestPolice then
-        return Core.NotifyObjective(source, T.Alerts.noofficers, 5000)
+        return Core.NotifyRightTip(source, T.Alerts.noofficers, 5000)
     end
 
     Core.NotifyObjective(closestPolice, T.Alerts.policealert, 5000)
     TriggerClientEvent("vorp_police:Client:AlertPolice", closestPolice, sourceCoords)
-    Core.NotifyObjective(source, T.Alerts.playeralert, 5000)
+    Core.NotifyRightTip(source, T.Alerts.playeralert, 5000)
     PlayersAlerts[source] = closestPolice
 end, false)
 
 --cancel alert for players
 RegisterCommand(Config.cancelpolicealert, function(source, args)
     if not PlayersAlerts[source] then
-        return Core.NotifyObjective(source, T.Alerts.noalerts, 5000)
+        return Core.NotifyRightTip(source, T.Alerts.noalerts, 5000)
     end
 
-    local isOnCall <const>, police <const> = isPoliceOnCall(source)
+    local isOnCall <const>, police <const> = getPoliceOnCall(source)
     if isOnCall and police > 0 then
         TriggerClientEvent("vorp_police:Client:RemoveBlip", police)
         Core.NotifyObjective(police, T.Alerts.alertcanceled, 5000)
     end
 
     PlayersAlerts[source] = nil
-    Core.NotifyObjective(source, T.Alerts.canceled, 5000)
+    Core.NotifyRightTip(source, T.Alerts.canceled, 5000)
 end, false)
 
 
@@ -421,7 +432,7 @@ RegisterCommand(Config.finishpolicelert, function(source, args)
 
     local player <const> = getPlayerFromCall(_source)
     if player > 0 then
-        Core.NotifyObjective(player, T.Alerts.policecancel, 5000)
+        Core.NotifyRightTip(player, T.Alerts.policecancel, 5000)
         PlayersAlerts[player] = nil
     end
 end, false)
