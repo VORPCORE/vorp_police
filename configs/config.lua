@@ -43,7 +43,7 @@ Config.JobLabels = {
 }
 
 -- jobs that can open hire menu
-Config.SheriffJobs = {e,
+Config.SheriffJobs = {
     BWSheriff = true,
     RhoSheriff = true,
     SDSheriff = true,
