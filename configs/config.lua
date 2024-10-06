@@ -10,7 +10,7 @@ Config.Dragcommand = "Drag" -- Comand to drag players
 
 Config.PoliceMenuCommand = 'policeMenu' -- Command to go on duty and teleport
 
-Config.alertPolice = "callPolice" -- command to alert police
+Config.alertPolice = "callpolice" -- command to alert police
 
 Config.cancelpolicealert = "cancelPoliceAlert"
 
