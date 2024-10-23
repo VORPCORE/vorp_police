@@ -20,9 +20,9 @@ Config.AllowOnlyDeadToAlert = true -- if true only dead players can alert police
 
 -- add any job names here
 Config.PoliceJobs = {
-    BWSheriff = true,
+    BWPolice = true,
     RhoSheriff = true,
-    SDSheriff = true,
+    SDPolice = true,
     StrSheriff = true,
     ArmSheriff = true,
     ValSheriff = true
@@ -34,9 +34,9 @@ Config.Keys = { -- prompts
 
 -- jobs allowed to hire
 Config.JobLabels = {
-    BWSheriff = "Sheriff",
+    BWPolice = "Sheriff",
     RhoSheriff = "Sheriff",
-    SDSheriff = "Sheriff",
+    SDPolice = "Sheriff",
     StrSheriff = "Sheriff",
     ArmSheriff = "Sheriff",
     ValSheriff = "Sheriff"
@@ -44,9 +44,9 @@ Config.JobLabels = {
 
 -- jobs that can open hire menu
 Config.SheriffJobs = {
-    BWSheriff = true,
+    BWPolice = true,
     RhoSheriff = true,
-    SDSheriff = true,
+    SDPolice = true,
     StrSheriff = true,
     ArmSheriff = true,
     ValSheriff = true
