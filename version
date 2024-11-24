@@ -1,3 +1,5 @@
+<0.4>
+- added jail system using polyzones (you need to download polyzones)
 <0.3>
 - added webhooks
 - small fixes

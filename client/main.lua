@@ -1,10 +1,14 @@
-local Core       = exports.vorp_core:GetCore()
-local MenuData   = exports.vorp_menu:GetMenuData()
-local T          = Translation.Langs[Config.Lang]
-local draggedBy  = -1
-local drag       = false
-local wasDragged = false
-local blip       = 0
+local Core <const>     = exports.vorp_core:GetCore()
+local MenuData <const> = exports.vorp_menu:GetMenuData()
+local T <const>        = Translation.Langs[Config.Lang]
+local draggedBy        = -1
+local drag             = false
+local wasDragged       = false
+local blip             = 0
+local Poly             = nil
+local playerInJail     = false
+local group <const>    = GetRandomIntInRange(0, 0xFFFFFF)
+local prompt           = 0
 
 -- on resource stop
 AddEventHandler("onResourceStop", function(resource)
@@ -16,6 +20,10 @@ AddEventHandler("onResourceStop", function(resource)
     -- remove blips
     for key, value in pairs(Config.Stations) do
         RemoveBlip(value.BlipHandle)
+    end
+
+    if Poly then
+        Poly:destroy()
     end
 end)
 
@@ -36,8 +44,6 @@ local function getClosestPlayer()
     return false, nil
 end
 
-local group <const> = GetRandomIntInRange(0, 0xFFFFFF)
-local prompt        = 0
 local function registerPrompts()
     if prompt ~= 0 then UiPromptDelete(prompt) end
     prompt = UiPromptRegisterBegin()
@@ -82,7 +88,7 @@ end
 local function createBlips()
     for key, value in pairs(Config.Stations) do
         local blip <const> = BlipAddForCoords(Config.Blips.Style, value.Coords.x, value.Coords.y, value.Coords.z)
-        SetBlipSprite(blip, Config.Blips.Sprite)
+        SetBlipSprite(blip, joaat(Config.Blips.Sprite), false)
         BlipAddModifier(blip, Config.Blips.Color)
         SetBlipName(blip, value.Name)
         value.BlipHandle = blip
@@ -160,6 +166,7 @@ local function Handle()
     end
 end
 
+--* DRAG PLAYER
 local function dragHandle()
     if not isOnDuty() then
         Core.NotifyObjective(T.Duty.YouAreNotOnDuty, 5000)
@@ -173,6 +180,7 @@ local function dragHandle()
     end
 end
 
+--* ON JOB UPDATE
 RegisterNetEvent("vorp_police:Client:JobUpdate", function()
     local hasJob = getPlayerJob()
 
@@ -185,15 +193,19 @@ RegisterNetEvent("vorp_police:Client:JobUpdate", function()
     end
 
     if isHandleRunning then return end
+
     CreateThread(Handle)
     RegisterCommand(Config.Dragcommand, dragHandle, false)
 end)
 
+--* CREATE BLIPS AND START HANDLE
 CreateThread(function()
     repeat Wait(5000) until LocalPlayer.state.IsInSession
+
     createBlips()
     local hasJob <const> = getPlayerJob()
     if not hasJob then return end
+
     if not isHandleRunning then
         CreateThread(Handle)
         RegisterCommand(Config.Dragcommand, dragHandle, false)
@@ -328,9 +340,12 @@ function OpenTeleportMenu(location)
         local coords <const> = Config.Teleports[data.current.value].Coords
         DoScreenFadeOut(1000)
         repeat Wait(0) until IsScreenFadedOut()
+
         RequestCollisionAtCoord(coords.x, coords.y, coords.z)
         SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z, false, false, false, false)
         repeat Wait(0) until HasCollisionLoadedAroundEntity(PlayerPedId()) == 1
+
+        Wait(4000)
         DoScreenFadeIn(1000)
         repeat Wait(0) until IsScreenFadedIn()
     end, function(data, menu)
@@ -384,10 +399,12 @@ local function OpenPoliceMenu()
     end)
 end
 
+--* OPEN POLICE MENU
 RegisterNetEvent("vorp_police:Client:OpenPoliceMenu", function()
     OpenPoliceMenu()
 end)
 
+--* CUFF PLAYER
 RegisterNetEvent('vorp_police:Client:PlayerCuff', function(action)
     local playerPed <const> = PlayerPedId()
     if action == "cuff" then
@@ -403,6 +420,7 @@ RegisterNetEvent('vorp_police:Client:PlayerCuff', function(action)
     end
 end)
 
+--* CHECK IF PLAYER IS CUFFED
 Core.Callback.Register("vorp_police:server:isPlayerCuffed", function(CB)
     local isclose <const>, playerped <const>, player <const> = getClosestPlayer()
     if not isclose then
@@ -416,6 +434,7 @@ Core.Callback.Register("vorp_police:server:isPlayerCuffed", function(CB)
     return CB({ isCuffed, serverid })
 end)
 
+--* DRAG PLAYER
 RegisterNetEvent("vorp_police:Client:dragPlayer", function(_source)
     draggedBy = _source
     drag = not drag
@@ -427,7 +446,6 @@ AddEventHandler("vorp_core:Client:OnPlayerDeath", function(killerserverid, cause
         wasDragged = true
     end
 end)
-
 CreateThread(function()
     repeat Wait(5000) until LocalPlayer.state.IsInSession
 
@@ -448,16 +466,16 @@ CreateThread(function()
     end
 end)
 
-
+--* ALERT POLICE
 RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
     if blip ~= 0 then return end -- dont allow more than one call
 
-    blip = BlipAddForCoords(Config.Blips.Style, targetCoords.x, targetCoords.y, targetCoords.z)
-    SetBlipSprite(blip, Config.Blips.Sprite)
-    BlipAddModifier(blip, Config.Blips.Color)
-    SetBlipName(blip, "player alert")
+    blip = BlipAddForCoords(Config.AlertBlips.Style, targetCoords.x, targetCoords.y, targetCoords.z)
+    SetBlipSprite(blip, Config.AlertBlips.Sprite, false)
+    BlipAddModifier(blip, Config.AlertBlips.Color)
+    SetBlipName(blip, Config.AlertBlips.Name)
 
-    StartGpsMultiRoute(joaat("COLOR_RED"), true, true)
+    StartGpsMultiRoute(joaat(Config.AlertBlips.Color), true, true)
     AddPointToGpsMultiRoute(targetCoords.x, targetCoords.y, targetCoords.z, false)
     SetGpsMultiRouteRender(true)
 
@@ -471,10 +489,82 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
     ClearGpsMultiRoute()
 end)
 
-
+--* REMOVE BLIP FROM ALERT
 RegisterNetEvent("vorp_police:Client:RemoveBlip", function()
     if blip == 0 then return end
     RemoveBlip(blip)
     blip = 0
     ClearGpsMultiRoute()
+end)
+
+--*RELEASE FROM JAIL
+RegisterNetEvent("vorp_police:Client:JailFinished", function()
+    playerInJail = false
+    if Poly then
+        Poly:destroy()
+        Poly = nil
+    end
+
+    DoScreenFadeOut(1000)
+    repeat Wait(0) until IsScreenFadedOut()
+
+    local spawnCoords <const> = Config.jail.FreedSpawnCoords
+    RequestCollisionAtCoord(spawnCoords.x, spawnCoords.y, spawnCoords.z)
+    SetEntityCoordsAndHeading(PlayerPedId(), spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.FreedSpawnHeading, false, false, false)
+    repeat Wait(0) until HasCollisionLoadedAroundEntity(PlayerPedId()) == 1
+    Wait(4000)
+
+    DoScreenFadeIn(1000)
+    repeat Wait(0) until IsScreenFadedIn()
+
+    SetTimeout(5000, function()
+        Core.NotifyObjective(T.Jail.playerReleasedFromJail, 5000)
+    end)
+end)
+
+--* JAIL PLAYER
+RegisterNetEvent("vorp_police:Client:JailPlayer", function()
+    if Poly then return end
+
+    DoScreenFadeOut(1000)
+    repeat Wait(0) until IsScreenFadedOut()
+
+    --! here we can add prison outfits for players
+
+    local spawnCoords <const> = Config.jail.JailSpawnCoords
+    RequestCollisionAtCoord(spawnCoords.x, spawnCoords.y, spawnCoords.z)
+    SetEntityCoordsAndHeading(PlayerPedId(), spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.JailSpawnHeading, false, false, false)
+    repeat Wait(0) until HasCollisionLoadedAroundEntity(PlayerPedId()) == 1
+    Wait(4000)
+    DoScreenFadeIn(1000)
+    repeat Wait(0) until IsScreenFadedIn()
+
+    local centerCoords <const> = Config.jail.JailCenterCoords
+    local radius <const> = Config.jail.JailRadius
+    Poly = CircleZone:Create(centerCoords, radius, { name = "prison" })
+    if not Poly then return end
+
+    Poly:onPlayerInOut(function(isPointInside, point)
+        if not isPointInside then
+            Core.NotifyObjective(T.Jail.cantLeaveJail, 5000)
+            Wait(3000)
+            SetEntityCoordsAndHeading(PlayerPedId(), Config.jail.JailSpawnCoords.x, Config.jail.JailSpawnCoords.y, Config.jail.JailSpawnCoords.z, Config.jail.JailSpawnHeading, false, false, false)
+        end
+    end)
+
+    if not playerInJail then
+        playerInJail = true
+        CreateThread(function()
+            --* disable certain actions here
+            repeat
+                Wait(0)
+                DisableControlAction(0, `INPUT_WHISTLE`, true)      -- disable call horse
+                DisableControlAction(0, `INPUT_OPEN_JOURNAL`, true) -- disable call wagon
+            until not playerInJail
+        end)
+    end
+
+    SetTimeout(5000, function()
+        Core.NotifyObjective(string.format(T.Jail.jailSuggestions.checkJailTimeCommand, Config.jail.Commands.CheckJailTime), 5000)
+    end)
 end)

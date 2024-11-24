@@ -1,24 +1,44 @@
 Config = {}
 
-Config.DevMode = true
+Config.DevMode = false
 
-Config.Align = "top-left" -- menu alignment
+Config.Align = "top-left"                       -- menu alignment
 
-Config.Lang = "English" -- language you want to use please make sure its in the translation.lua
+Config.Lang = "English"                         -- language you want to use please make sure its in the translation.lua
 
-Config.Dragcommand = "Drag" -- Comand to drag players
+Config.Dragcommand = "Drag"                     -- Comand to drag players
 
-Config.PoliceMenuCommand = 'policeMenu' -- Command to go on duty and teleport
+Config.PoliceMenuCommand = 'policeMenu'         -- Open the police menu to go on duty, or access other functionalities.
 
-Config.alertPolice = "callpolice" -- command to alert police
+Config.alertPolice = "callpolice"               -- Call for police assistance.
 
-Config.cancelpolicealert = "cancelPoliceAlert"
+Config.cancelpolicealert = "cancelPoliceAlert"  --Cancel a police alert.
 
-Config.finishpolicelert = "finishPoliceAlert"
+Config.finishpolicelert = "finishPoliceAlert"   -- Finish a police alert.
 
 Config.AllowOnlyDeadToAlert = true -- if true only dead players can alert police if false anyone can alert police
 
--- add any job names here
+Config.Keys = {                    -- prompts
+    B = 0x4CC0E2FE
+}
+
+
+Config.jail = {
+    JailCenterCoords = vector3(3339.23, -670.12, 45.83),  -- center of the circle
+    JailRadius = 50.0,                                    -- make radius bigger  you can allow players go outside the island or just inside the prison
+    JailSpawnCoords = vector3(3339.07, -669.41, 45.83),   -- spawn coords
+    JailSpawnHeading = 194.42,                            -- spawn heading
+    FreedSpawnCoords = vector3(2518.42, -1308.34, 49.01), -- freed spawn coords
+    FreedSpawnHeading = 275.49,                           -- freed spawn heading
+    Commands = {
+        Jail = "jail",                                    -- jail player /jail <player id> <time in minutes>
+        Unjail = "unjail",                                -- unjail player /unjail <player id>
+        ChangeJailTime = "changejailtime",                -- change jail time /changejailtime <player id> <time in minutes> to reduce time use negative numbers like -10 will reduce 10 minutes
+        CheckJailTime = "checkjailtime"                   -- check jail time /checkjailtime  for jailed players to check how long they have left
+    }
+}
+
+-- all jobs must be added here, these are the jobs that will be registered as police
 Config.PoliceJobs = {
     BWPolice = true,
     RhoSheriff = true,
@@ -28,12 +48,18 @@ Config.PoliceJobs = {
     ValSheriff = true
 }
 
-Config.Keys = { -- prompts
-    B = 0x4CC0E2FE
+-- here you add the job allowed and the grade anything above the grade you add will have permissions so if you add sheriff = 0 then the grade 0 is allowed to jail and anything above will be allowed
+Config.JobsAllowedToJail = {
+    BWPolice = 0,
+    RhoSheriff = 0,
+    SDPolice = 0,
+    StrSheriff = 0,
+    ArmSheriff = 0,
+    ValSheriff = 0
 }
 
 -- jobs allowed to hire
-Config.JobLabels = {
+Config.JobLabels = { -- job labels here that will be added when you hire a player through the sheriff menu
     BWPolice = "Sheriff",
     RhoSheriff = "Sheriff",
     SDPolice = "Sheriff",
@@ -42,7 +68,7 @@ Config.JobLabels = {
     ValSheriff = "Sheriff"
 }
 
--- jobs that can open hire menu
+-- jobs that can hire through the sheriff menu
 Config.SheriffJobs = {
     BWPolice = true,
     RhoSheriff = true,
@@ -51,17 +77,13 @@ Config.SheriffJobs = {
     ArmSheriff = true,
     ValSheriff = true
 }
-
 -- items
-Config.CuffItem = "handcuffs" -- can only uncuff if theres a key for the handcuffs
+Config.CuffItem = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
 
 Config.KeysItem = "handcuffkey" -- when using this will get you handcuffs if you dont have one already
 
--- if true storage for every police station will be shared if false they will be unique
-Config.ShareStorage = true
-
+Config.ShareStorage = true      -- if true storage for every police station will be shared if false they will be unique
 -- storage locations
--- check the server.lua for webhook url location line 19 in server.lua
 Config.Storage = {
 
     Valentine = {
@@ -158,6 +180,7 @@ Config.Blips = {
 }
 
 Config.AlertBlips = {
+    Name = "Police Alert",
     Color = "COLOR_RED",
     Style = "BLIP_STYLE_CHALLENGE_OBJECTIVE",
     Sprite = "blip_mp_bounty_hunter_introduction"

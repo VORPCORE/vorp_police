@@ -43,6 +43,7 @@ This script requires the following VORP resources to function properly:
 - **[VORP Core](https://github.com/VORPCORE/vorp_core-lua)**: Provides essential functions and event handlers used throughout the script.
 - **[VORP Inventory](https://github.com/VORPCORE/vorp_inventory-lua)**: Manages the item-based inventory system, including cuffs and keys.
 - **[VORP Menu](https://github.com/VORPCore/vorp_menu)**: Powers the interactive menu system, used for the boss menu, hire/fire system, and teleportation points.
+- **[PolyZone](https://github.com/outsider31000/PolyZone)**: download polyzone
 
 Ensure you have these resources installed and correctly set up for the `vorp_police` script to work seamlessly.
 
@@ -59,6 +60,20 @@ Ensure you have these resources installed and correctly set up for the `vorp_pol
 
 ---
 
+## **Commands**
+
+1. **/drag**: Drag/escort a nearby player.
+2. **/policeMenu**: Open the police menu to go on duty or access other functionalities.
+3. **/callpolice**: Call for police assistance.
+4. **/cancelPoliceAlert**: Cancel a police alert.
+5. **/finishPoliceAlert**: Finish a police alert.
+6. **/jail**: Jail a player. Usage: `/jail <player id> <time in minutes>`.
+7. **/unjail**: Unjail a player. Usage: `/unjail <player id>`.
+8. **/changejailtime**: Change jail time. Usage: `/changejailtime <player id> <time in minutes>`. To reduce time, use negative numbers (e.g., `-10` will reduce 10 minutes).
+9. **/checkjailtime**: Check jail time for jailed players to see how long they have left.
+
+---
+
 ## **Configuration**
 
 You can configure the script to suit your server's needs. The following settings can be adjusted in the configuration file:
@@ -72,5 +87,4 @@ You can configure the script to suit your server's needs. The following settings
 
 ## **Support and Updates**
 
-For support or further information please ask in the [Vorp Core discord](https://discord.gg/JjNYMnDKMf)
-. Updates will be released periodically to improve functionality or compatibility with the latest VORP framework versions.
+For support or further information, please ask in the [Vorp Core Discord](https://discord.gg/JjNYMnDKMf). Updates will be released periodically to improve functionality or compatibility with the latest VORP framework versions.

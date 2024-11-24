@@ -1,34 +1,39 @@
 Logs = {
-    Webhook         =       "",                 --add webhook for all other Police logs Url here 
-    StorageWebook   =       "",                 --add Storage webhook Url here
-    DutyWebhook     =       "",                 --add Duty webhook Url here
-    
-    
-    
-    
-    Namelogs        = "Police logs ",
-    color           = 16711680,                      -- color for webhook embeds or defualts to set in vorp core config
-    logo            = "",                            -- Logo URL for webhook embeds. or defualts to set in vorp core config
-    footerLogo      = "",                            -- Footer logo URL for webhook embeds. or defualts to set in vorp core config
-    Avatar          = "",                            -- Avatar URL for webhook embeds. or defualts to set in vorp core config
-
-
-
+    Webhook       = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add webhook for all other Police logs URL here
+    StorageWebook = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Storage webhook URL here
+    DutyWebhook   = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Duty webhook URL here
+    JailWebhook   = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Jail webhook URL here
+    Namelogs      = "Police logs",
+    color         = 16711680, -- color for webhook embeds, defaults to VORP core config if not set
+    logo          = "",       -- logo URL for webhook embeds, defaults to VORP core config
+    footerLogo    = "",       -- footer logo URL for webhook embeds, defaults to VORP core config
+    Avatar        = "",       -- avatar URL for webhook embeds, defaults to VORP core config
     Lang = {
         Steam           = "Steam: ",
-        Jobfired        = "Officer Fired: ",
-        JobOnDuty       = "Officer On Duty: ",       
-        JobOffDuty      = "Officer Off Duty: ",     
         Identifier      = "Identifier: ",
+        PlayerID        = "Player ID: ",
+        Job             = "Job",
+        PlayerName      = "Player Name: ",
+        Jobfired        = "Officer Fired: ",
+        JobHired        = "Officer Hired: ",
+        JobOnDuty       = "Officer On Duty: ",
+        JobOffDuty      = "Officer Off Duty: ",
         FiredPlayer     = "Fired Player: ",
         HiredPlayer     = "Hired Player: ",
-        JobHired        = "Officer Hired: ",
-        HiredBy         = "Hired By: ",
-        PlayerID        = "Player ID: ",
         FiredBy         = "Fired By: ",
+        HiredBy         = "Hired By: ",
+        JailledEvent    = "Jailed: ",
+        UnjailEvent     = "Unjailed: ",
+        Adjusted        ="Jail Time Adjusted",
         FromJob         = "From Job: ",
-        Job             = "Job",
-        PlayerName      = "Player Name: "  
+        JailedPlayer    = "Jailed Player: ",
+        JailedBy        = "Jailed By: ",
+        JailTime        = "Jail Time (minutes): ",
+        UnjailedPlayer  = "Unjailed Player: ",
+        JailTimeChange  = "Time Change (minutes): ",
+        NewTimeLeft     = "New Time Left (minutes): ",
+        JailCompleted   = "Jail Sentence Completed: ",
+        ReleasedPlayer  = "Released Player: ",
+        ReleasedByTime  = "Released Automatically after Time Served",
     },
-
 }
