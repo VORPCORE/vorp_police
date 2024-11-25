@@ -1,8 +1,8 @@
 Logs = {
-    Webhook       = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add webhook for all other Police logs URL here
-    StorageWebook = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Storage webhook URL here
-    DutyWebhook   = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Duty webhook URL here
-    JailWebhook   = "https://discord.com/api/webhooks/1289772927604232263/3N9EIlqZN4VJ86QL1ZQEX2rua7wbK0Tk2zIMCYLJXL5fAI3j34bzibugRggYdPlHJDYu", -- add Jail webhook URL here
+    Webhook       = "", -- add webhook for all other Police logs URL here
+    StorageWebook = "", -- add Storage webhook URL here
+    DutyWebhook   = "", -- add Duty webhook URL here
+    JailWebhook   = "", -- add Jail webhook URL here
     Namelogs      = "Police logs",
     color         = 16711680, -- color for webhook embeds, defaults to VORP core config if not set
     logo          = "",       -- logo URL for webhook embeds, defaults to VORP core config
