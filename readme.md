@@ -39,7 +39,7 @@ This is a comprehensive police system for RedM using the VORP framework. It inte
 - **Teleportation to Sisika:** Players are automatically teleported to Sisika when jailed.
 - **Jail commands:** With the correct permissions can jail, unjail, and adjust jail time.
 - **Jail time checks:** Players can check how much jail time is left via command.
-- **Respawn/D^ead/Escape Protection:** Players cannot respawn when inside Sisika. They will be respawned inside the jail.
+- **Respawn/Dead/Escape Protection:** Players cannot respawn when inside Sisika through respawn prompt. They will automatically respawn when they die.
 
 - 
 ---
