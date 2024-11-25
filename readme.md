@@ -12,28 +12,36 @@ This is a comprehensive police system for RedM using the VORP framework. It inte
 
 ## **Features**
 
-### **Storage System**:
+### **Storage System**
 - Supports **shared** and **private** storages for police officers.
 - Configurable item limits, allowing for a flexible inventory management system within the police force.
 
-### **On-Duty System**:
+### **On-Duty System**
 - Utilize **statebags** to track whether players are on or off duty.
 
-### **Teleport System**:
+### **Teleport System**
 - Set up teleport points for **fast travel** between different police stations or key locations.
 - Useful for both small and large servers, allowing for quick responses and movement across the map.
 
-### **Boss Menu**:
+### **Boss Menu**
 - **Hire and fire players** via the boss menu, offering easy job management for police chiefs or higher-ranking officers.
 - Simple and intuitive menu with all the necessary functionalities for managing the police force.
 
-### **Drag Players**:
+### **Drag Players**
 - Drag nearby players using a **drag player** feature, adding realism and functionality during arrests or detainment scenarios.
 
-### **Cuff System**:
-- **Cuffs as items**: Police officers can use cuffs to detain suspects, and keys to release them.
+### **Cuff System**
+- **Cuffs as items:** Police officers can use cuffs to detain suspects, and keys to release them.
 - Realistic mechanics for handcuffing and uncuffing, with item-based restrictions.
 
+### **Jail System**
+- **Persistent jail time:** Jail time lasts even after server relogs.
+- **Teleportation to Sisika:** Players are automatically teleported to Sisika when jailed.
+- **Jail commands:** With the correct permissions can jail, unjail, and adjust jail time.
+- **Jail time checks:** Players can check how much jail time is left via command.
+- **Respawn/Dead/Escape Protection:** Players cannot respawn when inside Sisika through respawn prompt. They will automatically respawn when they die.
+
+- 
 ---
 
 ## **Dependencies**
