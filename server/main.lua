@@ -480,7 +480,7 @@ AddEventHandler("playerDropped", function()
         return
     end
     print("jail time left update jail time data")
-    local jailData <const> = { remainingTime = timeLeftMinutes }
+    local jailData <const> = { jailEnd = timeLeftMinutes }
     SetResourceKvp(("vorp_police_jailTime_data_"):format(charid), json.encode(jailData))
     JailTime[_source] = nil
 end)
@@ -618,7 +618,7 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
     local jailData <const> = json.decode(data)
     SetTimeout(10000, function()
         local currentTime <const> = os.time()
-        local jailEnd <const> = currentTime + (jailData.remainingTime * 60)
+        local jailEnd <const> = currentTime + (jailData.jailEnd * 60)
 
         JailTime[source] = { jailEnd = jailEnd }
 
