@@ -474,12 +474,12 @@ AddEventHandler("playerDropped", function()
     local timeLeftMinutes <const> = math.floor(timeLeft / 60)
 
     if timeLeft <= 0 then
-        print("no jail time left delete jail time data")
         DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
         JailTime[_source] = nil
         return
     end
-    print("jail time left update jail time data")
+
+
     local jailData <const> = { jailEnd = timeLeftMinutes }
     SetResourceKvp(("vorp_police_jailTime_data_"):format(charid), json.encode(jailData))
     JailTime[_source] = nil
@@ -612,6 +612,7 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
             { name = "MINUTES",                                   help = T.Jail.jailSuggestions.Help.jailPlayer.Minites.help }
         })
     end
+
     local data <const> = GetResourceKvpString(("vorp_police_jailTime_data_"):format(char.charIdentifier))
     if not data then return end
 
