@@ -464,11 +464,12 @@ AddEventHandler("playerDropped", function()
 
     local jailTime <const> = JailTime[_source]
     if not jailTime then return end
+    if not jailTime.jailEnd then return end
 
     local user <const> = Core.getUser(_source)
     if not user then return end
-    local charid <const> = user.getUsedCharacter.charIdentifier
 
+    local charid <const> = user.getUsedCharacter.charIdentifier
     local currentTime <const> = os.time()
     local timeLeft <const> = jailTime.jailEnd - currentTime
     local timeLeftMinutes <const> = math.floor(timeLeft / 60)
@@ -617,6 +618,8 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if not data then return end
 
     local jailData <const> = json.decode(data)
+    if not jailData.jailEnd then return end
+
     SetTimeout(10000, function()
         local currentTime <const> = os.time()
         local jailEnd <const> = currentTime + (jailData.jailEnd * 60)
