@@ -1,3 +1,6 @@
+<0.5>
+- fix jail system
+- added config to allow everyone use cuffs or only police
 <0.4>
 - added jail system using polyzones (you need to download polyzones)
 <0.3>

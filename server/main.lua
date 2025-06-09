@@ -223,6 +223,17 @@ CreateThread(function()
 
         Inv:closeInventory(_source)
 
+        if not Config.AllowEveryoneToUseCuffs then
+            local user <const> = Core.getUser(_source)
+            if not hasJob(user) then
+                return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
+            end
+
+            if not isOnDuty(_source) then
+                return Core.NotifyObjective(_source, T.Duty.YouAreNotOnDuty, 5000)
+            end
+        end
+
         local result <const> = Core.Callback.TriggerAwait("vorp_police:server:isPlayerCuffed", _source)
         if result[1] then
             Core.NotifyObjective(_source, T.Cuff.PlayerCuffAlready, 5000)
@@ -232,7 +243,7 @@ CreateThread(function()
 
         Inv:subItemById(_source, data.item.id)
         TriggerClientEvent("vorp_police:Client:PlayerCuff", result[2], "cuff")
-    end)
+    end, GetCurrentResourceName())
 
     Inv:registerUsableItem(Config.KeysItem, function(data)
         local _source <const> = data.source
@@ -253,7 +264,7 @@ CreateThread(function()
         end
 
         TriggerClientEvent("vorp_police:Client:PlayerCuff", result[2], "uncuff")
-    end)
+    end, GetCurrentResourceName())
 end)
 
 --* CHECK IF PLAYER IS ON DUTY
@@ -433,8 +444,10 @@ local function doesOfficerHaveJailPermission(source)
     local character <const> = Core.getUser(source).getUsedCharacter
     local job <const> = character.job
     local grade <const> = character.jobGrade
-
-    if not Config.JobsAllowedToJail[job] or grade < Config.JobsAllowedToJail[job] then return false end
+    print(job, grade, Config.JobsAllowedToJail[job])
+    if not Config.JobsAllowedToJail[job] or grade < Config.JobsAllowedToJail[job] then
+        return false
+    end
 
     return true
 end
@@ -443,10 +456,6 @@ end
 --* ON PLAYER DROP
 AddEventHandler("playerDropped", function()
     local _source = source
-
-    if Player(_source).state.isPoliceDuty then
-        Player(_source).state:set('isPoliceDuty', nil, true)
-    end
 
     if JobsToAlert[_source] then
         JobsToAlert[_source] = nil
@@ -470,7 +479,7 @@ AddEventHandler("playerDropped", function()
 
     local charid <const> = user.getUsedCharacter.charIdentifier
     if not jailTime.jailEnd then
-        DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
+        DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(charid))
         JailTime[_source] = nil
         return
     end
@@ -480,14 +489,14 @@ AddEventHandler("playerDropped", function()
     local timeLeftMinutes <const> = math.floor(timeLeft / 60)
 
     if timeLeft <= 0 then
-        DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
+        DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(charid))
         JailTime[_source] = nil
         return
     end
 
-
+    print("jail player still has time left", timeLeftMinutes, charid)
     local jailData <const> = { jailEnd = timeLeftMinutes }
-    SetResourceKvp(("vorp_police_jailTime_data_"):format(charid), json.encode(jailData))
+    SetResourceKvp(("vorp_police_jailTime_data_%s"):format(charid), json.encode(jailData))
     JailTime[_source] = nil
 end)
 
@@ -506,7 +515,7 @@ local function checkJailTime(source)
         if not user then return end
 
         local charid <const> = user.getUsedCharacter.charIdentifier
-        DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
+        DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(charid))
         TriggerClientEvent("vorp_police:Client:JailFinished", source)
 
         local playerName <const>, playerIdentifier <const>, playerSteamname <const> = getSourceInfo(user, source)
@@ -561,7 +570,7 @@ local function jailPlayerCommand(source, args)
     JailTime[targetID] = { jailEnd = jailEnd }
 
     local charid <const> = target.getUsedCharacter.charIdentifier
-    SetResourceKvp(("vorp_police_jailTime_data_"):format(charid), json.encode(JailTime[targetID]))
+    SetResourceKvp(("vorp_police_jailTime_data_%s"):format(charid), json.encode(JailTime[targetID]))
 
     Core.NotifyObjective(targetID, string.format(T.Jail.jailedForTime, time), 5000)
     Core.NotifyObjective(_source, T.Jail.playerJailed, 5000)
@@ -593,6 +602,7 @@ AddEventHandler("onResourceStart", function(resource)
         end
         registerStorage(prefix, value.Name, value.Limit)
     end
+
     if Config.DevMode then
         print("^1dev mode is enabled^7 dont use it in live servers")
     end
@@ -601,6 +611,7 @@ end)
 --* ON CHARACTER SELECT
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if Config.DevMode then return end
+
     if Config.PoliceJobs[char.job] then
         TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
 
@@ -619,16 +630,17 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
         })
     end
 
-    local data <const> = GetResourceKvpString(("vorp_police_jailTime_data_"):format(char.charIdentifier))
+    local data <const> = GetResourceKvpString(("vorp_police_jailTime_data_%s"):format(char.charIdentifier))
+    print(data, "OnSelect", char.charIdentifier)
     if not data then return end
 
     local jailData <const> = json.decode(data)
     if not jailData.jailEnd then
-        DeleteResourceKvp(("vorp_police_jailTime_data_"):format(char.charIdentifier))
+        DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(char.charIdentifier))
         JailTime[source] = nil
         return
     end
-
+    print("send to jail")
     SetTimeout(10000, function()
         local currentTime <const> = os.time()
         local jailEnd <const> = currentTime + (jailData.jailEnd * 60)
@@ -639,6 +651,7 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
         TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.CheckJailTime, T.Jail.jailSuggestions.checkJailTimeCommand, {})
     end)
 end)
+
 --* UNJAIL PLAYER
 RegisterCommand(Config.jail.Commands.Unjail, function(source, args)
     local _source <const> = source
@@ -673,7 +686,7 @@ RegisterCommand(Config.jail.Commands.Unjail, function(source, args)
     TriggerClientEvent("vorp_police:Client:JailFinished", targetID)
     JailTime[targetID] = nil
     local charid <const> = target.getUsedCharacter.charIdentifier
-    DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
+    DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(charid))
 
     Core.NotifyObjective(_source, T.Jail.playerReleased, 5000)
 end, false)
@@ -709,7 +722,7 @@ RegisterCommand(Config.jail.Commands.ChangeJailTime, function(source, args)
         TriggerClientEvent("vorp_police:Client:JailFinished", targetID)
         JailTime[targetID] = nil
         local charid <const> = target.getUsedCharacter.charIdentifier
-        DeleteResourceKvp(("vorp_police_jailTime_data_"):format(charid))
+        DeleteResourceKvp(("vorp_police_jailTime_data_%s"):format(charid))
         return Core.NotifyObjective(_source, T.Jail.jailTimeExpired, 5000)
     end
 

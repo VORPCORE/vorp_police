@@ -87,11 +87,11 @@ end
 
 local function createBlips()
     for key, value in pairs(Config.Stations) do
-        local blip <const> = BlipAddForCoords(Config.Blips.Style, value.Coords.x, value.Coords.y, value.Coords.z)
-        SetBlipSprite(blip, joaat(Config.Blips.Sprite), false)
-        BlipAddModifier(blip, Config.Blips.Color)
-        SetBlipName(blip, value.Name)
-        value.BlipHandle = blip
+        local blipHandle <const> = BlipAddForCoords(Config.Blips.Style, value.Coords.x, value.Coords.y, value.Coords.z)
+        SetBlipSprite(blipHandle, joaat(Config.Blips.Sprite), false)
+        BlipAddModifier(blipHandle, Config.Blips.Color)
+        SetBlipName(blipHandle, value.Name)
+        value.BlipHandle = blipHandle
     end
 end
 
@@ -440,12 +440,15 @@ RegisterNetEvent("vorp_police:Client:dragPlayer", function(_source)
     drag = not drag
 end)
 
+--* ON PLAYER DEATH
 AddEventHandler("vorp_core:Client:OnPlayerDeath", function(killerserverid, causeofdeath)
     if drag then
         drag = false
         wasDragged = true
     end
 end)
+
+--* DRAG PLAYER
 CreateThread(function()
     repeat Wait(5000) until LocalPlayer.state.IsInSession
 
@@ -454,8 +457,7 @@ CreateThread(function()
         if drag then
             wasDragged = true
             local entity2 = GetPlayerPed(GetPlayerFromServerId(draggedBy))
-            AttachEntityToEntity(PlayerPedId(), entity2, 4103, 11816, 0.48, 0.00, 0.0, 0.0, 0.0, false, false, false,
-                false, 2, false, true, false)
+            AttachEntityToEntity(PlayerPedId(), entity2, 4103, 11816, 0.48, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, false, true, false)
         else
             if wasDragged then
                 wasDragged = false
@@ -529,7 +531,7 @@ RegisterNetEvent("vorp_police:Client:JailPlayer", function()
     DoScreenFadeOut(1000)
     repeat Wait(0) until IsScreenFadedOut()
 
-    --! here we can add prison outfits for players
+    --todo: here we can add prison outfits for players
 
     local spawnCoords <const> = Config.jail.JailSpawnCoords
     RequestCollisionAtCoord(spawnCoords.x, spawnCoords.y, spawnCoords.z)

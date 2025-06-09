@@ -2,23 +2,23 @@ Config = {}
 
 Config.DevMode = false
 
-Config.Align = "top-left"                       -- menu alignment
+Config.Align = "top-left"                      -- menu alignment
 
-Config.Lang = "English"                         -- language you want to use please make sure its in the translation.lua
+Config.Lang = "English"                        -- language you want to use please make sure its in the translation.lua
 
-Config.Dragcommand = "Drag"                     -- Comand to drag players
+Config.Dragcommand = "Drag"                    -- Comand to drag players
 
-Config.PoliceMenuCommand = 'policeMenu'         -- Open the police menu to go on duty, or access other functionalities.
+Config.PoliceMenuCommand = 'policeMenu'        -- Open the police menu to go on duty, or access other functionalities.
 
-Config.alertPolice = "callpolice"               -- Call for police assistance.
+Config.alertPolice = "callpolice"              -- Call for police assistance.
 
-Config.cancelpolicealert = "cancelPoliceAlert"  --Cancel a police alert.
+Config.cancelpolicealert = "cancelPoliceAlert" --Cancel a police alert.
 
-Config.finishpolicelert = "finishPoliceAlert"   -- Finish a police alert.
+Config.finishpolicelert = "finishPoliceAlert"  -- Finish a police alert.
 
-Config.AllowOnlyDeadToAlert = true -- if true only dead players can alert police if false anyone can alert police
+Config.AllowOnlyDeadToAlert = true             -- if true only dead players can alert police if false anyone can alert police
 
-Config.Keys = {                    -- prompts
+Config.Keys = {                                -- prompts
     B = 0x4CC0E2FE
 }
 
@@ -77,6 +77,9 @@ Config.SheriffJobs = {
     ArmSheriff = true,
     ValSheriff = true
 }
+
+Config.AllowEveryoneToUseCuffs = false -- if true anyone can use cuffs if false only police can use cuffs and on duty
+
 -- items
 Config.CuffItem = "handcuffs"   -- can only uncuff if theres a key for the handcuffs
 
