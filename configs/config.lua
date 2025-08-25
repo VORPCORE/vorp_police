@@ -85,6 +85,8 @@ Config.CuffItem = "handcuffs"   -- can only uncuff if theres a key for the handc
 
 Config.KeysItem = "handcuffkey" -- when using this will get you handcuffs if you dont have one already
 
+Config.CuffDelete = true        -- If true the handcuffs are removed from the inventory after use and when you unlock someone with the key the handcuffs are added back to your inventory
+
 Config.ShareStorage = true      -- if true storage for every police station will be shared if false they will be unique
 -- storage locations
 Config.Storage = {

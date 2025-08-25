@@ -241,7 +241,10 @@ CreateThread(function()
         end
         if not result[2] or result[2] == 0 then return end
 
-        Inv:subItemById(_source, data.item.id)
+        if Config.CuffDelete then
+            Inv:subItemById(_source, data.item.id)
+        end
+
         TriggerClientEvent("vorp_police:Client:PlayerCuff", result[2], "cuff")
     end, GetCurrentResourceName())
 
@@ -260,7 +263,9 @@ CreateThread(function()
 
         local hasCuffs <const> = Inv:getItemById(_source, data.item.id)
         if not hasCuffs then
-            Inv:addItem(_source, Config.CuffItem, 1)
+            if Config.CuffDelete then
+                Inv:addItem(_source, Config.CuffItem, 1)
+            end
         end
 
         TriggerClientEvent("vorp_police:Client:PlayerCuff", result[2], "uncuff")
