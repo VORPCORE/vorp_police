@@ -14,7 +14,6 @@ local prompt           = 0
 AddEventHandler("onResourceStop", function(resource)
     if resource ~= GetCurrentResourceName() then return end
     if drag then
-        drag = false
         DetachEntity(PlayerPedId(), true, false)
     end
     -- remove blips
