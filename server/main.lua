@@ -325,10 +325,7 @@ local function isPoliceOnCall(source)
 end
 
 local function getPoliceFromCall(source)
-    if PlayersAlerts[source] then
-        return PlayersAlerts[source]
-    end
-    return 0
+    return PlayersAlerts[source] or 0
 end
 
 local function getPlayerFromCall(source)
