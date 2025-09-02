@@ -17,7 +17,7 @@ This is a comprehensive police system for RedM using the VORP framework. It inte
 - Configurable item limits, allowing for a flexible inventory management system within the police force.
 
 ### **On-Duty System**
-- Utilize **statebags** to track whether players are on or off duty.
+- Utilize **statebags** to track whether players are on or off duty for light checks.
 
 ### **Teleport System**
 - Set up teleport points for **fast travel** between different police stations or key locations.
@@ -95,3 +95,11 @@ You can configure the script to suit your server's needs. The following settings
 ## **Support and Updates**
 
 For support or further information, please ask in the [Vorp Core Discord](https://discord.gg/JjNYMnDKMf). Updates will be released periodically to improve functionality or compatibility with the latest VORP framework versions.
+
+
+## **Exports**
+
+```lua
+local isOnDuty = exports.vorp_police:isOnDuty(source)
+local policeId = exports.vorp_police:getPoliceFromCall(source) -- returns id source if on call or 0
+```

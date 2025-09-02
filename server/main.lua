@@ -4,6 +4,7 @@ local T             = Translation.Langs[Config.Lang]
 local PlayersAlerts = {}
 local JobsToAlert   = {}
 local JailTime      = {}
+local DutyList      = {}
 
 --* HELPER FUNCTIONS
 local function registerStorage(prefix, name, limit)
@@ -33,7 +34,7 @@ local function hasJob(user)
 end
 
 local function isOnDuty(source)
-    return Player(source).state.isPoliceDuty
+    return DutyList[source]
 end
 
 local function isPlayerNear(source, target)
@@ -187,6 +188,7 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
 
     if isOnDuty(target) then
         Player(target).state:set('isPoliceDuty', nil, true)
+        DutyList[target] = nil
     end
 
     TriggerClientEvent("vorp_police:Client:JobUpdate", target)
@@ -290,6 +292,7 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, _)
 
     if not isOnDuty(source) then
         Player(source).state:set('isPoliceDuty', true, true)
+        DutyList[source] = true
         JobsToAlert[source] = true
 
         description = description .. "**" .. Logs.Lang.JobOnDuty .. "**"
@@ -299,6 +302,7 @@ Core.Callback.Register("vorp_police:server:checkDuty", function(source, CB, _)
     else
         JobsToAlert[source] = nil
         Player(source).state:set('isPoliceDuty', nil, true)
+        DutyList[source] = nil
         description = description .. "**" .. Logs.Lang.JobOffDuty .. "**"
         Core.AddWebhook(Logs.Lang.JobOffDuty, Logs.DutyWebhook, description, Logs.color, Logs.Namelogs, Logs.logo, Logs.footerlogo, Logs.Avatar)
 
@@ -752,3 +756,7 @@ RegisterNetEvent("vorp_core:Server:OnPlayerDeath", function()
         end)
     end
 end)
+
+
+exports("isOnDuty", isOnDuty)
+exports("getPoliceFromCall", getPoliceFromCall)
