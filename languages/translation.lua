@@ -1,4 +1,5 @@
-Translation = {}
+---@class vorp_police_translation
+local Translation = {}
 
 Translation.Langs = {
 	English = {
@@ -111,4 +112,8 @@ Translation.Langs = {
 
 		}
 	},
+}
+
+return {
+	Translation = Translation
 }

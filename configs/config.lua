@@ -1,4 +1,5 @@
-Config = {}
+---@class vorp_police_config
+local Config = {}
 
 Config.DevMode = false
 
@@ -242,4 +243,8 @@ Config.Stations = {
         Teleports = Config.Teleports,
         Storage = Config.Storage
     }
+}
+
+return {
+    Config = Config
 }

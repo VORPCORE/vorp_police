@@ -1,24 +1,25 @@
-local Core <const>     = exports.vorp_core:GetCore()
-local MenuData <const> = exports.vorp_menu:GetMenuData()
-local T <const>        = Translation.Langs[Config.Lang]
-local draggedBy        = -1
-local drag             = false
-local wasDragged       = false
-local blip             = 0
-local Poly             = nil
-local playerInJail     = false
-local group <const>    = GetRandomIntInRange(0, 0xFFFFFF)
-local prompt           = 0
+local LIB                 = Import("/configs/config.lua", "/languages/translation.lua", "blips", "prompts")
+local Config <const>      = LIB.Config --[[@as vorp_police_config]]
+local Translation <const> = LIB.Translation --[[@as vorp_police_translation]]
+local Blips <const>       = LIB.Blips --[[@as MAP]]
+local Prompts <const>     = LIB.Prompts --[[@as PROMPTS]]
+
+local Core <const>        = exports.vorp_core:GetCore()
+local MenuData <const>    = exports.vorp_menu:GetMenuData()
+local T <const>           = Translation.Langs[Config.Lang]
+local draggedBy           = -1
+local drag                = false
+local wasDragged          = false
+local blip                = 0
+local Poly                = nil
+local playerInJail        = false
+local prompts <const>     = {}
 
 -- on resource stop
 AddEventHandler("onResourceStop", function(resource)
     if resource ~= GetCurrentResourceName() then return end
     if drag then
         DetachEntity(PlayerPedId(), true, false)
-    end
-    -- remove blips
-    for key, value in pairs(Config.Stations) do
-        RemoveBlip(value.BlipHandle)
     end
 
     if Poly then
@@ -41,17 +42,6 @@ local function getClosestPlayer()
         end
     end
     return false, nil
-end
-
-local function registerPrompts()
-    if prompt ~= 0 then UiPromptDelete(prompt) end
-    prompt = UiPromptRegisterBegin()
-    UiPromptSetControlAction(prompt, Config.Keys.B)
-    local label = VarString(10, "LITERAL_STRING", T.Menu.Press)
-    UiPromptSetText(prompt, label)
-    UiPromptSetGroup(prompt, group, 0)
-    UiPromptSetStandardMode(prompt, true)
-    UiPromptRegisterEnd(prompt)
 end
 
 local function applyBadge(result)
@@ -85,83 +75,67 @@ local function isOnDuty()
 end
 
 local function createBlips()
-    for key, value in pairs(Config.Stations) do
-        local blipHandle <const> = BlipAddForCoords(Config.Blips.Style, value.Coords.x, value.Coords.y, value.Coords.z)
-        SetBlipSprite(blipHandle, joaat(Config.Blips.Sprite), false)
-        BlipAddModifier(blipHandle, Config.Blips.Color)
-        SetBlipName(blipHandle, value.Name)
-        value.BlipHandle = blipHandle
+    for _, value in pairs(Config.Stations) do
+        Blips:Create('coords', {
+            Pos = value.Coords,
+            Blip = Config.Blips.Style,
+            Options = {                       -- optional
+                sprite = Config.Blips.Sprite, --string or integer if type is entity or coords
+                name = value.Name,
+                modifier = Config.Blips.Color,
+            },
+        })
     end
 end
 
-local isHandleRunning = false
-local function Handle()
-    registerPrompts()
-    isHandleRunning = true
-    while true do
-        local sleep = 1000
-        for key, value in pairs(Config.Stations) do
-            local coords <const> = GetEntityCoords(PlayerPedId())
 
-            if value.Storage[key] then
-                local distanceStorage <const> = #(coords - value.Storage[key].Coords)
-                if distanceStorage < 2.0 then
-                    sleep = 0
-                    if distanceStorage < 1.5 then
-                        local label <const> = VarString(10, "LITERAL_STRING", value.Name)
-                        UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
-
-                        if UiPromptHasStandardModeCompleted(prompt, 0) then
-                            if isOnDuty() then
-                                local isAnyPlayerClose <const> = getClosestPlayer()
-                                if not isAnyPlayerClose then
-                                    TriggerServerEvent("vorp_police:Server:OpenStorage", key)
-                                else
-                                    Core.NotifyObjective(T.Error.Playernearby, 5000)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            if value.Teleports[key] then
-                local distanceTeleport <const> = #(coords - value.Teleports[key].Coords)
-                if distanceTeleport < 2.0 then
-                    sleep = 0
-                    if distanceTeleport < 1.5 then
-                        local label <const> = VarString(10, "LITERAL_STRING", value.Name)
-                        UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
-
-                        if UiPromptHasStandardModeCompleted(prompt, 0) then
-                            if isOnDuty() then
-                                OpenTeleportMenu(key)
-                            end
-                        end
-                    end
-                end
-            end
-
-            local distanceStation <const> = #(coords - value.Coords)
-            if distanceStation < 2.0 then
-                sleep = 0
-
-                local label <const> = VarString(10, "LITERAL_STRING", value.Name)
-                UiPromptSetActiveGroupThisFrame(group, label, 0, 0, 0, 0)
-
-                if UiPromptHasStandardModeCompleted(prompt, 0) then
-                    local job <const> = LocalPlayer.state.Character.Job
-                    if Config.SheriffJobs[job] then
-                        OpenSheriffMenu()
+local function registerLocations()
+    for key, value in pairs(Config.Stations) do
+        local data = {
+            sleep = 800,
+            locations = {
+                { coords = value.Coords,                label = value.Name,                distance = 2.0 },
+                { coords = value.Storage[key].Coords,   label = value.Storage[key].Name,   distance = 1.5 },
+                { coords = value.Teleports[key].Coords, label = value.Teleports[key].Name, distance = 2.0 },
+            },
+            prompts = {
+                {
+                    type = T.Menu.Press,
+                    key = Config.Keys.B,
+                    label = 'press',
+                    mode = 'Standard',
+                },
+            }
+        }
+        local prompt <const> = Prompts:Register(data, function(prompt, index, self)
+            if index == 2 then
+                if isOnDuty() then
+                    local isAnyPlayerClose <const> = getClosestPlayer()
+                    if not isAnyPlayerClose then
+                        TriggerServerEvent("vorp_police:Server:OpenStorage", key)
                     else
-                        Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
+                        Core.NotifyObjective(T.Error.PlayerNearbyCantOpenInventory, 5000)
                     end
                 end
             end
-        end
 
-        if not isHandleRunning then return end
-        Wait(sleep)
+            if index == 3 then
+                if isOnDuty() then
+                    OpenTeleportMenu(key)
+                end
+            end
+
+            if index == 1 then
+                local job <const> = LocalPlayer.state.Character.Job
+                if Config.SheriffJobs[job] then
+                    OpenSheriffMenu()
+                else
+                    Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
+                end
+            end
+        end, true) -- auto start on register
+
+        table.insert(prompts, prompt)
     end
 end
 
@@ -187,13 +161,21 @@ RegisterNetEvent("vorp_police:Client:JobUpdate", function()
         RegisterCommand(Config.Dragcommand, function()
             Core.NotifyObjective(T.Jobs.YouAreNotAPoliceOfficer, 5000)
         end, false)
-        isHandleRunning = false
+
+        for _, value in pairs(prompts) do
+            value:Destroy()
+        end
+
+        table.wipe(prompts)
         return
     end
 
-    if isHandleRunning then return end
+    -- already exists no need to register or start them
+    if #prompts > 0 then
+        return
+    end
 
-    CreateThread(Handle)
+    registerLocations()
     RegisterCommand(Config.Dragcommand, dragHandle, false)
 end)
 
@@ -205,10 +187,8 @@ CreateThread(function()
     local hasJob <const> = getPlayerJob()
     if not hasJob then return end
 
-    if not isHandleRunning then
-        CreateThread(Handle)
-        RegisterCommand(Config.Dragcommand, dragHandle, false)
-    end
+    RegisterCommand(Config.Dragcommand, dragHandle, false)
+    registerLocations()
 end)
 
 function OpenSheriffMenu()
@@ -232,7 +212,7 @@ function OpenSheriffMenu()
         align = Config.Align,
         elements = elements,
 
-    }, function(data, menu)
+    }, function(data, _)
         if data.current.value == "hire" then
             OpenHireMenu()
         elseif data.current.value == "fire" then
@@ -257,7 +237,7 @@ function OpenSheriffMenu()
                 TriggerServerEvent("vorp_police:server:firePlayer", res)
             end
         end
-    end, function(data, menu)
+    end, function(_, menu)
         menu.close()
     end)
 end
@@ -302,7 +282,7 @@ function OpenHireMenu()
         if res and res > 0 then
             TriggerServerEvent("vorp_police:server:hirePlayer", res, data.current.value)
         end
-    end, function(data, menu)
+    end, function(_, menu)
         menu.close()
     end)
 end
@@ -347,7 +327,7 @@ function OpenTeleportMenu(location)
         Wait(4000)
         DoScreenFadeIn(1000)
         repeat Wait(0) until IsScreenFadedIn()
-    end, function(data, menu)
+    end, function(_, menu)
         menu.close()
     end)
 end
@@ -393,7 +373,7 @@ local function OpenPoliceMenu()
             end
             menu.close()
         end
-    end, function(data, menu)
+    end, function(_, menu)
         menu.close()
     end)
 end
@@ -440,7 +420,7 @@ RegisterNetEvent("vorp_police:Client:dragPlayer", function(_source)
 end)
 
 --* ON PLAYER DEATH
-AddEventHandler("vorp_core:Client:OnPlayerDeath", function(killerserverid, causeofdeath)
+AddEventHandler("vorp_core:Client:OnPlayerDeath", function()
     if drag then
         drag = false
         wasDragged = true
@@ -476,6 +456,16 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
     BlipAddModifier(blip, Config.AlertBlips.Color)
     SetBlipName(blip, Config.AlertBlips.Name)
 
+    blip = Blips:Create('coords', {
+        Pos = targetCoords,
+        Blip = Config.AlertBlips.Style,
+        Options = {
+            sprite = Config.AlertBlips.Sprite,
+            name = T.Alerts.playeralert,
+            modifier = Config.AlertBlips.Color,
+        },
+    })
+
     StartGpsMultiRoute(joaat(Config.AlertBlips.Color), true, true)
     AddPointToGpsMultiRoute(targetCoords.x, targetCoords.y, targetCoords.z, false)
     SetGpsMultiRouteRender(true)
@@ -484,16 +474,16 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
 
     if blip ~= 0 then
         Core.NotifyObjective(T.Alerts.arive, 5000)
+        blip:Remove()
+        blip = 0
     end
-    RemoveBlip(blip)
-    blip = 0
     ClearGpsMultiRoute()
 end)
 
 --* REMOVE BLIP FROM ALERT
 RegisterNetEvent("vorp_police:Client:RemoveBlip", function()
     if blip == 0 then return end
-    RemoveBlip(blip)
+    blip:Remove()
     blip = 0
     ClearGpsMultiRoute()
 end)

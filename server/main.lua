@@ -1,10 +1,15 @@
-local Core          = exports.vorp_core:GetCore()
-local Inv           = exports.vorp_inventory
-local T             = Translation.Langs[Config.Lang]
-local PlayersAlerts = {}
-local JobsToAlert   = {}
-local JailTime      = {}
-local DutyList      = {}
+local LIB                 = Import("/configs/config.lua", "/languages/translation.lua", "logs")
+local Config <const>      = LIB.Config --[[@as vorp_police_config]]
+local Translation <const> = LIB.Translation --[[@as vorp_police_translation]]
+local Logs <const>        = LIB.Logs
+
+local Core                = exports.vorp_core:GetCore()
+local Inv                 = exports.vorp_inventory
+local T                   = Translation.Langs[Config.Lang]
+local PlayersAlerts       = {}
+local JobsToAlert         = {}
+local JailTime            = {}
+local DutyList            = {}
 
 --* HELPER FUNCTIONS
 local function registerStorage(prefix, name, limit)

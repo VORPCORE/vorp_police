@@ -8,8 +8,7 @@ description 'A police job for vorp core framework'
 lua54 'yes'
 
 shared_scripts {
-    'configs/config.lua',
-    'languages/translation.lua'
+    '@vorp_lib/import.lua'
 }
 
 client_scripts {
@@ -22,6 +21,11 @@ server_scripts {
     'server/main.lua',
     'configs/logs.lua',
 
+}
+
+files {
+    'languages/translation.lua',
+    'configs/config.lua',
 }
 
 dependencies {
