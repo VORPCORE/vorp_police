@@ -1,4 +1,4 @@
-local LIB                 = Import("/configs/config", "/languages/translation", "logs")
+local LIB                 = Import({ "/configs/config", "/languages/translation", "/configs/logs" })
 local Config <const>      = LIB.Config --[[@as vorp_police_config]]
 local Translation <const> = LIB.Translation --[[@as vorp_police_translation]]
 local Logs <const>        = LIB.Logs
