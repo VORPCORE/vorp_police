@@ -1,4 +1,4 @@
-local LIB                 = Import("/configs/config.lua", "/languages/translation.lua", "blips", "prompts")
+local LIB                 = Import("/configs/config", "/languages/translation", "blips", "prompts")
 local Config <const>      = LIB.Config --[[@as vorp_police_config]]
 local Translation <const> = LIB.Translation --[[@as vorp_police_translation]]
 local Blips <const>       = LIB.Blips --[[@as MAP]]
