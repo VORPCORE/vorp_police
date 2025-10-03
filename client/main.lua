@@ -94,9 +94,9 @@ local function registerLocations()
         local data = {
             sleep = 800,
             locations = {
-                { coords = value.Coords,                label = value.Name,                distance = 2.0 },
-                { coords = value.Storage[key].Coords,   label = value.Storage[key].Name,   distance = 1.5 },
-                { coords = value.Teleports[key].Coords, label = value.Teleports[key].Name, distance = 2.0 },
+                { coords = value.Coords,                label = value.Name,                distance = 2.0, },
+                { coords = value.Storage[key].Coords,   label = value.Storage[key].Name,   distance = 1.5, },
+                { coords = value.Teleports[key].Coords, label = value.Teleports[key].Name, distance = 2.0, },
             },
             prompts = {
                 {
@@ -107,7 +107,7 @@ local function registerLocations()
                 },
             }
         }
-        local prompt <const> = Prompts:Register(data, function(prompt, index, self)
+        local prompt <const> = Prompts:Register(data, function(self, index, data)
             if index == 2 then
                 if isOnDuty() then
                     local isAnyPlayerClose <const> = getClosestPlayer()
@@ -121,7 +121,7 @@ local function registerLocations()
 
             if index == 3 then
                 if isOnDuty() then
-                    OpenTeleportMenu(key)
+                    OpenTeleportMenu(key, true)
                 end
             end
 
@@ -197,12 +197,12 @@ function OpenSheriffMenu()
         {
             label = T.Menu.HirePlayer,
             value = "hire",
-            desc = T.Menu.HirePlayer .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Menu.HirePlayer
         },
         {
             label = T.Menu.FirePlayer,
             value = "fire",
-            desc = T.Menu.FirePlayer .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Menu.FirePlayer
         }
     }
 
@@ -211,6 +211,12 @@ function OpenSheriffMenu()
         subtext = T.Menu.HireFireMenu,
         align = Config.Align,
         elements = elements,
+        soundOpen = false,
+        hideRadar = true,
+        divider = true,
+        fixedHeight = true,
+        itemHeight = "4vh",
+        skipOpenEvent = false, -- detect open event
 
     }, function(data, _)
         if data.current.value == "hire" then
@@ -238,7 +244,7 @@ function OpenSheriffMenu()
             end
         end
     end, function(_, menu)
-        menu.close()
+        menu.close(true, true)
     end)
 end
 
@@ -254,14 +260,20 @@ function OpenHireMenu()
         subtext = T.Menu.SubMenu,
         elements = elements,
         align = Config.Align,
-        lastmenu = "OpenSheriffMenu"
+        lastmenu = "OpenSheriffMenu",
+        soundOpen = false,
+        hideRadar = true,
+        divider = true,
+        fixedHeight = true,
+        itemHeight = "4vh",
+        skipOpenEvent = false, -- detect open event
 
     }, function(data, menu)
         if (data.current == "backup") then
             return _G[data.trigger]()
         end
 
-        menu.close()
+        menu.close(true, true, true)
         local MyInput = {
             type = "enableinput",
             inputType = "input",
@@ -283,11 +295,11 @@ function OpenHireMenu()
             TriggerServerEvent("vorp_police:server:hirePlayer", res, data.current.value)
         end
     end, function(_, menu)
-        menu.close()
+        menu.close(true, true)
     end)
 end
 
-function OpenTeleportMenu(location)
+function OpenTeleportMenu(location, soundOpen)
     MenuData.CloseAll()
     local elements = {}
     for key, value in pairs(Config.Teleports) do
@@ -313,9 +325,15 @@ function OpenTeleportMenu(location)
         subtext = T.Menu.SubMenu,
         align = Config.Align,
         elements = elements,
+        itemHeight = "4vh",
+        fixedHeight = true,
+        soundOpen = soundOpen,
+        hideRadar = true,
+        divider = true,
+        skipOpenEvent = false, -- detect open event
 
     }, function(data, menu)
-        menu.close()
+        menu.close(true, true, true)
         local coords <const> = Config.Teleports[data.current.value].Coords
         DoScreenFadeOut(1000)
         repeat Wait(0) until IsScreenFadedOut()
@@ -328,7 +346,7 @@ function OpenTeleportMenu(location)
         DoScreenFadeIn(1000)
         repeat Wait(0) until IsScreenFadedIn()
     end, function(_, menu)
-        menu.close()
+        menu.close(true, true)
     end)
 end
 
@@ -337,19 +355,22 @@ local function OpenPoliceMenu()
     local isONduty <const> = LocalPlayer.state.isPoliceDuty
     local label <const> = isONduty and T.Duty.OffDuty or T.Duty.OnDuty
     local desc <const> = isONduty and T.Duty.GoOffDuty or T.Duty.GoOnDuty
+    local text = isONduty and "go offduty" or "go onduty"
     local elements <const> = {
         {
-            label = label,
+            label = label .. "<br><span style='opacity:0.6;'>" .. text .. "</span>",
             value = "duty",
-            desc = desc .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = desc,
+            footerText = "press enter",
         }
     }
 
     if Config.UseTeleportsMenu then
         table.insert(elements, {
-            label = T.Teleport.TeleportTo,
+            label = T.Teleport.TeleportTo .. " <br><span style='opacity:0.6;'>" .. "teleport options" .. "</span>",
             value = "teleports",
-            desc = T.Teleport.TeleportToDifferentLocations .. "<br><br><br><br><br><br><br><br><br><br><br><br>"
+            desc = T.Teleport.TeleportToDifferentLocations,
+            footerText = "press enter",
         })
     end
 
@@ -358,10 +379,16 @@ local function OpenPoliceMenu()
         subtext = T.Menu.SubMenu,
         align = Config.Align,
         elements = elements,
+        soundOpen = true,
+        hideRadar = true,
+        divider = true,
+        fixedHeight = true,
+        itemHeight = "4vh",
+        skipOpenEvent = false, -- detect open event
 
     }, function(data, menu)
         if data.current.value == "teleports" then
-            OpenTeleportMenu()
+            OpenTeleportMenu(false, true)
         elseif data.current.value == "duty" then
             local result = Core.Callback.TriggerAwait("vorp_police:server:checkDuty")
             if result then
@@ -371,10 +398,10 @@ local function OpenPoliceMenu()
                 Core.NotifyObjective(T.Duty.YouAreNotOnDuty, 5000)
                 applyBadge(false)
             end
-            menu.close()
+            menu.close(true, true, true)
         end
     end, function(_, menu)
-        menu.close()
+        menu.close(true, true)
     end)
 end
 
