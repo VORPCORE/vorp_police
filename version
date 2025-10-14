@@ -2,7 +2,6 @@
 - added vorp_lib support
 - added vorp_menu features to the menus
 - small fixes and features
-- migrated jail polyzone to vorp_lib PolyZones module (no external PolyZone dependency)
 <0.5>
 - fix jail system
 - added config to allow everyone use cuffs or only police
