@@ -12,8 +12,6 @@ shared_scripts {
 }
 
 client_scripts {
-    '@PolyZone/client.lua',
-    '@PolyZone/CircleZone.lua',
     'client/main.lua',
 }
 
@@ -26,10 +24,6 @@ server_scripts {
 files {
     'languages/translation.lua',
     'configs/config.lua',
-}
-
-dependencies {
-    "PolyZone"
 }
 
 version '0.6'

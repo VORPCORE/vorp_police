@@ -50,7 +50,7 @@ This script requires the following VORP resources to function properly:
 - **[VORP Core](https://github.com/VORPCORE/vorp_core-lua)**: Provides essential functions and event handlers used throughout the script.
 - **[VORP Inventory](https://github.com/VORPCORE/vorp_inventory-lua)**: Manages the item-based inventory system, including cuffs and keys.
 - **[VORP Menu](https://github.com/VORPCore/vorp_menu)**: Powers the interactive menu system, used for the boss menu, hire/fire system, and teleportation points.
-- **[PolyZone](https://github.com/outsider31000/PolyZone)**: download polyzone
+- **[VORP Lib](https://github.com/VORPCORE/vorp_lib)**: Supplies shared utilities, including the PolyZones module now used for jail boundaries.
 
 Ensure you have these resources installed and correctly set up for the `vorp_police` script to work seamlessly.
 
