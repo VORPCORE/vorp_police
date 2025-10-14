@@ -1,4 +1,5 @@
-local LIB                 = Import({ "/configs/config", "/languages/translation", "blips", "prompts" })
+local LIB                 = Import({ "/configs/config", "/languages/translation", "blips", "prompts", "polyzones" })
+local PolyZones <const>   = LIB.PolyZones --[[@as PolyZones]]
 local Config <const>      = LIB.Config --[[@as vorp_police_config]]
 local Translation <const> = LIB.Translation --[[@as vorp_police_translation]]
 local Blips <const>       = LIB.Blips --[[@as MAP]]
@@ -23,7 +24,8 @@ AddEventHandler("onResourceStop", function(resource)
     end
 
     if Poly then
-        Poly:destroy()
+        PolyZones:Destroy(Poly)
+        Poly = nil
     end
 end)
 
@@ -519,7 +521,7 @@ end)
 RegisterNetEvent("vorp_police:Client:JailFinished", function()
     playerInJail = false
     if Poly then
-        Poly:destroy()
+        PolyZones:Destroy(Poly)
         Poly = nil
     end
 
@@ -559,16 +561,28 @@ RegisterNetEvent("vorp_police:Client:JailPlayer", function()
 
     local centerCoords <const> = Config.jail.JailCenterCoords
     local radius <const> = Config.jail.JailRadius
-    Poly = CircleZone:Create(centerCoords, radius, { name = "prison" })
-    if not Poly then return end
-
-    Poly:onPlayerInOut(function(isPointInside, point)
-        if not isPointInside then
+    Poly = PolyZones:Register({
+        id = "vorp_police_jail",
+        type = "circle",
+        center = centerCoords,
+        radius = radius,
+        padding = 0.0,
+        onExit = function()
             Core.NotifyObjective(T.Jail.cantLeaveJail, 5000)
             Wait(3000)
-            SetEntityCoordsAndHeading(PlayerPedId(), Config.jail.JailSpawnCoords.x, Config.jail.JailSpawnCoords.y, Config.jail.JailSpawnCoords.z, Config.jail.JailSpawnHeading, false, false, false)
-        end
-    end)
+            SetEntityCoordsAndHeading(
+                PlayerPedId(),
+                Config.jail.JailSpawnCoords.x,
+                Config.jail.JailSpawnCoords.y,
+                Config.jail.JailSpawnCoords.z,
+                Config.jail.JailSpawnHeading,
+                false,
+                false,
+                false
+            )
+        end,
+    }, true)
+    if not Poly then return end
 
     if not playerInJail then
         playerInJail = true
