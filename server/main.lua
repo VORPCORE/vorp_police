@@ -33,6 +33,7 @@ local function registerStorage(prefix, name, limit)
     end
 end
 
+---@return { [number]: { label: string, allowAll: boolean?, canHire: boolean?, canJail: boolean? } }?
 local function hasJob(user)
     local Character <const> = user.getUsedCharacter
     return Config.PoliceJobs[Character.job]
@@ -116,18 +117,30 @@ end)
 
 
 --* HIRE PLAYER
-RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
+RegisterNetEvent("vorp_police:server:hirePlayer", function(id, data)
     local _source <const> = source
 
     local user <const> = Core.getUser(_source)
     if not user then return end
 
-    if not hasJob(user) then
+    local value <const> = hasJob(user)
+    if not value then
         return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
-    local label <const> = Config.JobLabels[job]
-    if not label then return print(T.Jobs.Nojoblabel) end
+    local value2 <const> = value[user.getUsedCharacter.jobGrade]
+    if not value2 then
+        return Core.NotifyObjective(_source, T.Jobs.NoJobPermission, 5000)
+    end
+
+    if not value2.canHire and not value2.allowAll then
+        return Core.NotifyObjective(_source, " not allowed to hire players", 5000)
+    end
+
+    local job = data.job
+    local label = data.label
+    local grade = data.grade
+
 
     local target <const> = id
     local targetUser <const> = Core.getUser(target)
@@ -144,6 +157,7 @@ RegisterNetEvent("vorp_police:server:hirePlayer", function(id, job)
     end
 
     targetCharacter.setJob(job, true)
+    targetCharacter.setJobGrade(grade, true)
     targetCharacter.setJobLabel(label, true)
 
     Core.NotifyObjective(target, T.Player.HireedPlayer .. label, 5000)
@@ -175,12 +189,22 @@ RegisterNetEvent("vorp_police:server:firePlayer", function(id)
         return Core.NotifyObjective(_source, T.Jobs.YouAreNotAPoliceOfficer, 5000)
     end
 
+    local value <const> = Config.PoliceJobs[user.getUsedCharacter.job]
+    if not value[user.getUsedCharacter.jobGrade] then
+        return Core.NotifyObjective(_source, " not allowed to fire players", 5000)
+    end
+
+    if not value[user.getUsedCharacter.jobGrade].canHire and not value[user.getUsedCharacter.jobGrade].allowAll then
+        return Core.NotifyObjective(_source, " not allowed to fire players", 5000)
+    end
+
     local target <const> = id
     local targetUser <const> = Core.getUser(target)
     if not targetUser then return Core.NotifyObjective(_source, T.Player.NoPlayerFound, 5000) end
 
     local targetCharacter <const> = targetUser.getUsedCharacter
     local targetJob <const> = targetCharacter.job
+
     if not Config.PoliceJobs[targetJob] then
         return Core.NotifyObjective(_source, T.Player.CantFirenotHired, 5000)
     end
@@ -455,8 +479,13 @@ local function doesOfficerHaveJailPermission(source)
     local character <const> = Core.getUser(source).getUsedCharacter
     local job <const> = character.job
     local grade <const> = character.jobGrade
-    print(job, grade, Config.JobsAllowedToJail[job])
-    if not Config.JobsAllowedToJail[job] or grade < Config.JobsAllowedToJail[job] then
+    local value <const> = Config.PoliceJobs[job]
+    if not value then return false end
+
+    local value2 <const> = value[grade]
+    if not value2 then return false end
+
+    if not value2.canJail and not value2.allowAll then
         return false
     end
 
@@ -622,27 +651,28 @@ end)
 --* ON CHARACTER SELECT
 AddEventHandler("vorp:SelectedCharacter", function(source, char)
     if Config.DevMode then return end
-
-    if Config.PoliceJobs[char.job] then
+    local value = Config.PoliceJobs[char.job]
+    if value then
         TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.PoliceMenuCommand, T.Menu.OpenPoliceMenu, {})
 
-        TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.Jail, T.Jail.jailSuggestions.jailPlayerCommand, {
-            { name = T.Jail.jailSuggestions.Help.jailPlayer.name, help = T.Jail.jailSuggestions.Help.jailPlayer.help },
-            { name = "MINUTES",                                   help = T.Jail.jailSuggestions.Help.jailPlayer.Minites.help }
-        })
+        if value[char.jobGrade] and value[char.jobGrade].canJail then
+            TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.Jail, T.Jail.jailSuggestions.jailPlayerCommand, {
+                { name = T.Jail.jailSuggestions.Help.jailPlayer.name, help = T.Jail.jailSuggestions.Help.jailPlayer.help },
+                { name = "MINUTES",                                   help = T.Jail.jailSuggestions.Help.jailPlayer.Minites.help }
+            })
 
-        TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.Unjail, T.Jail.jailSuggestions.unjailPlayerCommand, {
-            { name = T.Jail.jailSuggestions.Help.unjailPlayer.name, help = T.Jail.jailSuggestions.Help.unjailPlayer.help }
-        })
+            TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.Unjail, T.Jail.jailSuggestions.unjailPlayerCommand, {
+                { name = T.Jail.jailSuggestions.Help.unjailPlayer.name, help = T.Jail.jailSuggestions.Help.unjailPlayer.help }
+            })
 
-        TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.ChangeJailTime, T.Jail.jailSuggestions.changeJailTimeCommand, {
-            { name = T.Jail.jailSuggestions.Help.jailPlayer.name, help = T.Jail.jailSuggestions.Help.jailPlayer.help },
-            { name = "MINUTES",                                   help = T.Jail.jailSuggestions.Help.jailPlayer.Minites.help }
-        })
+            TriggerClientEvent("chat:addSuggestion", source, "/" .. Config.jail.Commands.ChangeJailTime, T.Jail.jailSuggestions.changeJailTimeCommand, {
+                { name = T.Jail.jailSuggestions.Help.jailPlayer.name, help = T.Jail.jailSuggestions.Help.jailPlayer.help },
+                { name = "MINUTES",                                   help = T.Jail.jailSuggestions.Help.jailPlayer.Minites.help }
+            })
+        end
     end
 
     local data <const> = GetResourceKvpString(("vorp_police_jailTime_data_%s"):format(char.charIdentifier))
-    print(data, "OnSelect", char.charIdentifier)
     if not data then return end
 
     local jailData <const> = json.decode(data)
@@ -651,7 +681,7 @@ AddEventHandler("vorp:SelectedCharacter", function(source, char)
         JailTime[source] = nil
         return
     end
-    print("send to jail")
+
     SetTimeout(10000, function()
         local currentTime <const> = os.time()
         local jailEnd <const> = currentTime + (jailData.jailEnd * 60)

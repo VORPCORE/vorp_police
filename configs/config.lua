@@ -39,44 +39,19 @@ Config.jail = {
     }
 }
 
--- all jobs must be added here, these are the jobs that will be registered as police
+
 Config.PoliceJobs = {
-    BWPolice = true,
-    RhoSheriff = true,
-    SDPolice = true,
-    StrSheriff = true,
-    ArmSheriff = true,
-    ValSheriff = true
-}
-
--- here you add the job allowed and the grade anything above the grade you add will have permissions so if you add sheriff = 0 then the grade 0 is allowed to jail and anything above will be allowed
-Config.JobsAllowedToJail = {
-    BWPolice = 0,
-    RhoSheriff = 0,
-    SDPolice = 0,
-    StrSheriff = 0,
-    ArmSheriff = 0,
-    ValSheriff = 0
-}
-
--- jobs allowed to hire
-Config.JobLabels = { -- job labels here that will be added when you hire a player through the sheriff menu
-    BWPolice = "Sheriff",
-    RhoSheriff = "Sheriff",
-    SDPolice = "Sheriff",
-    StrSheriff = "Sheriff",
-    ArmSheriff = "Sheriff",
-    ValSheriff = "Sheriff"
-}
-
--- jobs that can hire through the sheriff menu
-Config.SheriffJobs = {
-    BWPolice = true,
-    RhoSheriff = true,
-    SDPolice = true,
-    StrSheriff = true,
-    ArmSheriff = true,
-    ValSheriff = true
+    Police = {
+        [0] = {
+            label = "Sheriff",
+            allowAll = true, -- allows all
+        },
+        [1] = {
+            label = "Deputy",
+            canHire = true, -- allows open sheriff menu to hire and fire players
+            canJail = true, -- allows jail commands
+        }
+    }
 }
 
 Config.AllowEveryoneToUseCuffs = false -- if true anyone can use cuffs if false only police can use cuffs and on duty

@@ -128,11 +128,19 @@ local function registerLocations()
             end
 
             if index == 1 then
+                -- light check if player can open the sheriff menu
                 local job <const> = LocalPlayer.state.Character.Job
-                if Config.SheriffJobs[job] then
-                    OpenSheriffMenu()
-                else
-                    Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
+                local grade <const> = LocalPlayer.state.Character.Grade
+                local v <const> = Config.PoliceJobs[job]
+                if v then
+                    local value2 <const> = v[grade]
+                    if value2 then
+                        if value2.canHire or value2.allowAll then
+                            OpenSheriffMenu()
+                        else
+                            Core.NotifyObjective(T.Error.OnlyPoliceopenmenu, 5000)
+                        end
+                    end
                 end
             end
         end, true) -- auto start on register
@@ -252,9 +260,16 @@ end
 
 function OpenHireMenu()
     MenuData.CloseAll()
-    local elements = {}
-    for key, _ in pairs(Config.PoliceJobs) do
-        table.insert(elements, { label = T.Jobs.Job .. ": " .. key, value = key, desc = T.Jobs.Job .. key })
+    local elements <const> = {}
+    for job, value in pairs(Config.PoliceJobs) do
+        for grade, v in pairs(value) do
+            table.insert(elements, {
+                label = T.Jobs.Job .. ": " .. v.label .. " " .. grade,
+                value = job,
+                data = { grade = grade, label = v.label },
+                desc = T.Jobs.Job .. ": Hire " .. v.label .. " " .. grade
+            })
+        end
     end
 
     MenuData.Open("default", GetCurrentResourceName(), "OpenHireFireMenu", {
@@ -276,7 +291,7 @@ function OpenHireMenu()
         end
 
         menu.close(true, true, true)
-        local MyInput = {
+        local MyInput <const> = {
             type = "enableinput",
             inputType = "input",
             button = T.Player.Confirm,
@@ -294,7 +309,7 @@ function OpenHireMenu()
         local res = exports.vorp_inputs:advancedInput(MyInput)
         res = tonumber(res)
         if res and res > 0 then
-            TriggerServerEvent("vorp_police:server:hirePlayer", res, data.current.value)
+            TriggerServerEvent("vorp_police:server:hirePlayer", res, { job = data.current.value, grade = data.current.data.grade, label = data.current.data.label })
         end
     end, function(_, menu)
         menu.close(true, true)
@@ -303,7 +318,7 @@ end
 
 function OpenTeleportMenu(location, soundOpen)
     MenuData.CloseAll()
-    local elements = {}
+    local elements <const> = {}
     for key, value in pairs(Config.Teleports) do
         if location then
             if location ~= key then
