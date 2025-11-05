@@ -93,13 +93,19 @@ end
 
 local function registerLocations()
     for key, value in pairs(Config.Stations) do
+        local locations = {
+            { coords = value.Coords,                label = value.Name,                distance = 2.0, },
+            { coords = value.Storage[key].Coords,   label = value.Storage[key].Name,   distance = 1.5, },
+            { coords = value.Teleports[key].Coords, label = value.Teleports[key].Name, distance = 2.0, },
+        }
+
+        if not Config.UseTeleportsMenu then
+            table.remove(locations, 3)
+        end
+
         local data = {
             sleep = 800,
-            locations = {
-                { coords = value.Coords,                label = value.Name,                distance = 2.0, },
-                { coords = value.Storage[key].Coords,   label = value.Storage[key].Name,   distance = 1.5, },
-                { coords = value.Teleports[key].Coords, label = value.Teleports[key].Name, distance = 2.0, },
-            },
+            locations = locations,
             prompts = {
                 {
                     type = T.Menu.Press,
@@ -122,6 +128,9 @@ local function registerLocations()
             end
 
             if index == 3 then
+                if not Config.UseTeleportsMenu then
+                    return
+                end
                 if isOnDuty() then
                     OpenTeleportMenu(key, true)
                 end
