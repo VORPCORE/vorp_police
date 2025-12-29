@@ -31,7 +31,7 @@ end)
 
 local function getClosestPlayer()
     local players <const> = GetActivePlayers()
-    local coords <const> = GetEntityCoords(PlayerPedId())
+    local coords <const> = GetEntityCoords(CACHE.Ped)
 
     for _, value in ipairs(players) do
         if PlayerId() ~= value then
@@ -47,7 +47,7 @@ local function getClosestPlayer()
 end
 
 local function applyBadge(result)
-    local playerPed <const> = PlayerPedId()
+    local playerPed <const> = CACHE.Ped
     if result then
         RemoveTagFromMetaPed(playerPed, 0x3F7F3587, 0)
         UpdatePedVariation(playerPed, false, true, true, true, false)
@@ -438,7 +438,7 @@ end)
 
 --* CUFF PLAYER
 RegisterNetEvent('vorp_police:Client:PlayerCuff', function(action)
-    local playerPed <const> = PlayerPedId()
+    local playerPed <const> = CACHE.Ped
     if action == "cuff" then
         CuffPed(playerPed)
         SetEnableHandcuffs(playerPed, true, false)
@@ -489,11 +489,11 @@ CreateThread(function()
         if drag then
             wasDragged = true
             local entity2 = GetPlayerPed(GetPlayerFromServerId(draggedBy))
-            AttachEntityToEntity(PlayerPedId(), entity2, 4103, 11816, 0.48, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, false, true, false)
+            AttachEntityToEntity(CACHE.Ped, entity2, 4103, 11816, 0.48, 0.00, 0.0, 0.0, 0.0, false, false, false, false, 2, false, true, false)
         else
             if wasDragged then
                 wasDragged = false
-                DetachEntity(PlayerPedId(), true, false)
+                DetachEntity(CACHE.Ped, true, false)
             end
         end
         Wait(sleep)
@@ -523,7 +523,7 @@ RegisterNetEvent("vorp_police:Client:AlertPolice", function(targetCoords)
     AddPointToGpsMultiRoute(targetCoords.x, targetCoords.y, targetCoords.z, false)
     SetGpsMultiRouteRender(true)
 
-    repeat Wait(1000) until #(GetEntityCoords(PlayerPedId()) - targetCoords) < 15.0 or blip == 0
+    repeat Wait(1000) until #(GetEntityCoords(CACHE.Ped) - targetCoords) < 15.0 or blip == 0
 
     if blip ~= 0 then
         Core.NotifyObjective(T.Alerts.arive, 5000)
@@ -554,8 +554,8 @@ RegisterNetEvent("vorp_police:Client:JailFinished", function()
 
     local spawnCoords <const> = Config.jail.FreedSpawnCoords
     RequestCollisionAtCoord(spawnCoords.x, spawnCoords.y, spawnCoords.z)
-    SetEntityCoordsAndHeading(PlayerPedId(), spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.FreedSpawnHeading, false, false, false)
-    repeat Wait(0) until HasCollisionLoadedAroundEntity(PlayerPedId()) == 1
+    SetEntityCoordsAndHeading(CACHE.Ped, spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.FreedSpawnHeading, false, false, false)
+    repeat Wait(0) until HasCollisionLoadedAroundEntity(CACHE.Ped) == 1
     Wait(4000)
 
     DoScreenFadeIn(1000)
@@ -577,8 +577,8 @@ RegisterNetEvent("vorp_police:Client:JailPlayer", function()
 
     local spawnCoords <const> = Config.jail.JailSpawnCoords
     RequestCollisionAtCoord(spawnCoords.x, spawnCoords.y, spawnCoords.z)
-    SetEntityCoordsAndHeading(PlayerPedId(), spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.JailSpawnHeading, false, false, false)
-    repeat Wait(0) until HasCollisionLoadedAroundEntity(PlayerPedId()) == 1
+    SetEntityCoordsAndHeading(CACHE.Ped, spawnCoords.x, spawnCoords.y, spawnCoords.z, Config.jail.JailSpawnHeading, false, false, false)
+    repeat Wait(0) until HasCollisionLoadedAroundEntity(CACHE.Ped) == 1
     Wait(4000)
     DoScreenFadeIn(1000)
     repeat Wait(0) until IsScreenFadedIn()
@@ -595,7 +595,7 @@ RegisterNetEvent("vorp_police:Client:JailPlayer", function()
             Core.NotifyObjective(T.Jail.cantLeaveJail, 5000)
             Wait(3000)
             SetEntityCoordsAndHeading(
-                PlayerPedId(),
+                CACHE.Ped,
                 Config.jail.JailSpawnCoords.x,
                 Config.jail.JailSpawnCoords.y,
                 Config.jail.JailSpawnCoords.z,
