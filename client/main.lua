@@ -108,9 +108,9 @@ local function registerLocations()
             locations = locations,
             prompts = {
                 {
-                    type = T.Menu.Press,
+                    type = 'Press',
                     key = Config.Keys.B,
-                    label = 'press',
+                    label = T.Menu.Press,
                     mode = 'Standard',
                 },
             }
