@@ -9,6 +9,7 @@ This is a comprehensive police system for RedM using the VORP framework. It inte
 1. Download or clone the repository to your server's resources folder.
 2. Add `ensure vorp_police` to your `server.cfg` file to ensure the script is loaded when the server starts.
 3. Make sure the required dependencies are installed and properly configured.
+4. This script registers automatically jobs to vorp core.
 
 ## **Features**
 

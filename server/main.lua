@@ -245,8 +245,27 @@ RegisterServerEvent('vorp_police:Server:dragPlayer', function(target)
     end
 end)
 
+
 --* REGISTER ITEMS
 CreateThread(function()
+    if Core.RegisterJobs then
+        local jobsData <const> = {}
+        for job, value in pairs(Config.PoliceJobs) do
+            jobsData[job] = {}
+            -- only if grades are used
+            jobsData[job].grades = {}
+            for grade, v in pairs(value) do
+                jobsData[job].grades[grade] = {}
+                jobsData[job].grades[grade].label = v.label
+            end
+        end
+        Core.RegisterJobs(jobsData, GetCurrentResourceName())
+    else
+        -- wait for some time to print this
+        -- print("^1vorp_police: server: RegisterJobs not found update vorp core to the latest version^7")
+    end
+
+
     if not Config.CuffItem or not Config.KeysItem then return end
 
     Inv:registerUsableItem(Config.CuffItem, function(data)
